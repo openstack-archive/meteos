@@ -410,17 +410,16 @@ class API(base.Base):
         return rv
 
     def create_learning(self, context, name, description, model_id, method,
-                        args, template_id, job_template_id,
-                        experiment_id, cluster_id):
+                        model_type, dataset_format, args, template_id,
+                        job_template_id, experiment_id, cluster_id):
         """Create a Learning"""
         policy.check_policy(context, 'learning', 'create')
-        model = self.db.model_get(context, model_id)
 
         learning = {'id': None,
                     'display_name': name,
                     'display_description': description,
                     'model_id': model_id,
-                    'model_type': model.model_type,
+                    'model_type': model_type,
                     'user_id': context.user_id,
                     'project_id': context.project_id,
                     'method': method,
@@ -435,7 +434,7 @@ class API(base.Base):
             result['template_id'] = template_id
             result['job_template_id'] = job_template_id
             result['cluster_id'] = cluster_id
-            result['dataset_format'] = model.dataset_format
+            result['dataset_format'] = dataset_format
             self.engine_rpcapi.create_learning(context, result)
             updates = {'status': constants.STATUS_CREATING}
 

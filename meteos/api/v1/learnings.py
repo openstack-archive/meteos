@@ -117,22 +117,20 @@ class LearningController(wsgi.Controller, wsgi.AdminActionsMixin):
 
         LOG.debug("Create learning with request: %s", learning)
 
-        try:
-            self.engine_api.get_experiment(context, learning['experiment_id'])
-        except exception.NotFound:
-            raise exc.HTTPNotFound()
-
         display_name = learning.get('display_name')
         display_description = learning.get('display_description')
-        experiment_id = learning.get('experiment_id')
         model_id = learning.get('model_id')
         method = learning.get('method')
         args = learning.get('args')
 
         try:
-            experiment = self.engine_api.get_experiment(context, experiment_id)
+            model = self.engine_api.get_model(context, model_id)
+            experiment = self.engine_api.get_experiment(
+                context,
+                model.experiment_id)
             template = self.engine_api.get_template(
-                context, experiment.template_id)
+                context,
+                experiment.template_id)
         except exception.NotFound:
             raise exc.HTTPNotFound()
 
@@ -142,10 +140,12 @@ class LearningController(wsgi.Controller, wsgi.AdminActionsMixin):
             display_description,
             model_id,
             method,
+            model.model_type,
+            model.dataset_format,
             args,
             template.id,
             template.job_template_id,
-            experiment_id,
+            model.experiment_id,
             experiment.cluster_id)
 
         return self._view_builder.detail(req, new_learning)
