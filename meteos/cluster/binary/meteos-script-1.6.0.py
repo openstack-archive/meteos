@@ -412,7 +412,7 @@ class MeteosSparkController(object):
         else:
             self.output = self.controller.predict(self.model, params)
 
-        if self.output:
+        if self.output is not None:
             print(self.output)
 
 
