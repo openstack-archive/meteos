@@ -45,6 +45,8 @@ from pyspark.mllib.classification import LogisticRegressionModel
 from pyspark.mllib.clustering import KMeans, KMeansModel
 from pyspark.mllib.feature import Word2Vec
 from pyspark.mllib.feature import Word2VecModel
+from pyspark.mllib.fpm import FPGrowth
+from pyspark.mllib.fpm import FPGrowthModel
 from pyspark.mllib.recommendation import ALS, MatrixFactorizationModel, Rating
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.regression import LinearRegressionWithSGD
@@ -283,6 +285,31 @@ class Word2VecModelController(ModelController):
             print("{}: {}".format(word, cosine_distance))
 
 
+class FPGrowthModelController(ModelController):
+
+    def __init__(self):
+        super(FPGrowthModelController, self).__init__()
+
+    def create_model(self, data, params):
+
+        minSupport = params.get('minSupport', 0.2)
+        numPartitions = params.get('numPartitions', 10)
+        limits = params.get('limits', 10)
+
+        transactions = data.map(lambda line: line.strip().split(' '))
+
+        model= FPGrowth.train(transactions,
+                              minSupport=minSupport,
+                              numPartitions=numPartitions)
+
+        result = model.freqItemsets().collect()
+
+        for index, fi in enumerate(result):
+            if index == limits:
+                break
+            print(str(fi.items) + ':' + str(fi.freq))
+
+
 class MeteosSparkController(object):
 
     def init_context(self):
@@ -316,6 +343,8 @@ class MeteosSparkController(object):
             self.controller = DecisionTreeModelController()
         elif model_type == 'Word2Vec':
             self.controller = Word2VecModelController()
+        elif model_type == 'FPGrowth':
+            self.controller = FPGrowthModelController()
 
     def save_data(self, collect=True):
 
@@ -370,7 +399,8 @@ class MeteosSparkController(object):
         else:
             self.model = self.controller.create_model(self.data, list_params)
 
-        self.model.save(self.context, self.modelpath)
+        if self.model:
+            self.model.save(self.context, self.modelpath)
 
     def download_dataset(self):
 
