@@ -153,41 +153,6 @@ class SSHPool(pools.Pool):
             self.current_size -= 1
 
 
-def check_ssh_injection(cmd_list):
-    ssh_injection_pattern = ['`', '$', '|', '||', ';', '&', '&&', '>', '>>',
-                             '<']
-
-    # Check whether injection attacks exist
-    for arg in cmd_list:
-        arg = arg.strip()
-
-        # Check for matching quotes on the ends
-        is_quoted = re.match('^(?P<quote>[\'"])(?P<quoted>.*)(?P=quote)$', arg)
-        if is_quoted:
-            # Check for unescaped quotes within the quoted argument
-            quoted = is_quoted.group('quoted')
-            if quoted:
-                if (re.match('[\'"]', quoted) or
-                        re.search('[^\\\\][\'"]', quoted)):
-                    raise exception.SSHInjectionThreat(command=cmd_list)
-        else:
-            # We only allow spaces within quoted arguments, and that
-            # is the only special character allowed within quotes
-            if len(arg.split()) > 1:
-                raise exception.SSHInjectionThreat(command=cmd_list)
-
-        # Second, check whether danger character in command. So the shell
-        # special operator must be a single argument.
-        for c in ssh_injection_pattern:
-            if c not in arg:
-                continue
-
-            result = arg.find(c)
-            if not result == -1:
-                if result == 0 or not arg[result - 1] == '\\':
-                    raise exception.SSHInjectionThreat(command=cmd_list)
-
-
 class LazyPluggable(object):
     """A pluggable backend loaded lazily based on some value."""
 

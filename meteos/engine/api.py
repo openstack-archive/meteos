@@ -291,6 +291,18 @@ class API(base.Base):
                                                    dataset['job_id'],
                                                    id)
 
+    def _enable_load_model(self, context):
+
+        project_id = context.project_id
+        models = self.db.model_get_all_by_project(context,
+                                                  project_id)
+        l_status = [model.status for model in models]
+
+        if constants.STATUS_ACTIVE in l_status:
+            return False
+
+        return True
+
     def get_all_models(self, context, search_opts=None, sort_key='created_at',
                        sort_dir='desc'):
         policy.check_policy(context, 'model', 'get_all')
@@ -380,6 +392,58 @@ class API(base.Base):
                                                  model['job_id'],
                                                  id)
 
+    def load_model(self, context, id, dataset_format, model_type,
+                   job_template_id, experiment_id, cluster_id):
+        """Load a Model"""
+        policy.check_policy(context, 'model', 'load')
+
+        model = {'id': id,
+                 'dataset_format': dataset_format,
+                 'model_type': model_type,
+                 'job_template_id': job_template_id,
+                 'experiment_id': experiment_id,
+                 'cluster_id': cluster_id
+                 }
+
+        if not self._enable_load_model(context):
+            msg = _("Can not load multiple models at the same time.")
+            raise exception.InvalidLearning(reason=msg)
+
+        try:
+            self.engine_rpcapi.load_model(context, model)
+            updates = {'status': constants.STATUS_ACTIVATING}
+
+            LOG.info(_LI("Accepted load of model %s."), id)
+            self.db.model_update(context, id, updates)
+        except Exception:
+            with excutils.save_and_reraise_exception():
+                updates = {'status': constants.STATUS_ERROR}
+                self.db.model_update(context, id, updates)
+
+    def unload_model(self, context, id, dataset_format, model_type,
+                     job_template_id, experiment_id, cluster_id):
+        """Unload a Model"""
+        policy.check_policy(context, 'model', 'unload')
+
+        model = {'id': id,
+                 'dataset_format': dataset_format,
+                 'model_type': model_type,
+                 'job_template_id': job_template_id,
+                 'experiment_id': experiment_id,
+                 'cluster_id': cluster_id
+                 }
+
+        try:
+            self.engine_rpcapi.unload_model(context, model)
+            updates = {'status': constants.STATUS_DEACTIVATING}
+
+            LOG.info(_LI("Accepted unload of model %s."), id)
+            self.db.model_update(context, id, updates)
+        except Exception:
+            with excutils.save_and_reraise_exception():
+                updates = {'status': constants.STATUS_ERROR}
+                self.db.model_update(context, id, updates)
+
     def get_all_learnings(self, context, search_opts=None,
                           sort_key='created_at', sort_dir='desc'):
         policy.check_policy(context, 'learning', 'get_all')
@@ -409,8 +473,8 @@ class API(base.Base):
         rv = self.db.learning_get(context, learning_id)
         return rv
 
-    def create_learning(self, context, name, description, model_id, method,
-                        model_type, dataset_format, args, template_id,
+    def create_learning(self, context, name, description, status, model_id,
+                        method, model_type, dataset_format, args, template_id,
                         job_template_id, experiment_id, cluster_id):
         """Create a Learning"""
         policy.check_policy(context, 'learning', 'create')
@@ -435,11 +499,21 @@ class API(base.Base):
             result['job_template_id'] = job_template_id
             result['cluster_id'] = cluster_id
             result['dataset_format'] = dataset_format
-            self.engine_rpcapi.create_learning(context, result)
-            updates = {'status': constants.STATUS_CREATING}
+
+            LOG.info(_LI("Status of Model %s."), status)
+
+            if status == constants.STATUS_AVAILABLE:
+                self.engine_rpcapi.create_learning(context, result)
+                updates = {'status': constants.STATUS_CREATING}
+                self.db.learning_update(context,
+                                        result['id'],
+                                        updates)
+
+            elif status == constants.STATUS_ACTIVE:
+                self.engine_rpcapi.create_online_learning(context,
+                                                          result)
 
             LOG.info(_LI("Accepted creation of learning %s."), result['id'])
-            self.db.learning_update(context, result['id'], updates)
         except Exception:
             with excutils.save_and_reraise_exception():
                 self.db.learning_delete(context, result['id'])
@@ -463,7 +537,10 @@ class API(base.Base):
                 "statuses": statuses}
             raise exception.InvalidLearning(reason=msg)
 
-        result = self.engine_rpcapi.delete_learning(context,
-                                                    learning['cluster_id'],
-                                                    learning['job_id'],
-                                                    id)
+        if learning.job_id:
+            self.engine_rpcapi.delete_learning(context,
+                                               learning['cluster_id'],
+                                               learning['job_id'],
+                                               id)
+        else:
+            self.db.learning_delete(context, id)

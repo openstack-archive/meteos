@@ -125,3 +125,11 @@ class LearningDriver(object):
     def delete_model(self, context, request_specs):
         """Is called to delete model."""
         raise NotImplementedError()
+
+    def load_model(self, context, request_specs):
+        """Is called to load model."""
+        raise NotImplementedError()
+
+    def unload_model(self, context, request_specs):
+        """Is called to unload model."""
+        raise NotImplementedError()

@@ -37,7 +37,61 @@ from meteos import engine
 LOG = log.getLogger(__name__)
 
 
-class ModelController(wsgi.Controller, wsgi.AdminActionsMixin):
+class ModelMixin(object):
+    """Mixin class for Model API Controllers."""
+
+    def _load(self, req, id, body):
+        """Load model for online prediction"""
+        context = req.environ['meteos.context']
+
+        LOG.debug("Load model with request: %s", id)
+
+        try:
+            model = self.engine_api.get_model(context, id)
+            experiment = self.engine_api.get_experiment(
+                context, model.experiment_id)
+            template = self.engine_api.get_template(
+                context, experiment.template_id)
+        except exception.NotFound:
+            raise exc.HTTPNotFound()
+
+        self.engine_api.load_model(context,
+                                   id,
+                                   model.dataset_format,
+                                   model.model_type,
+                                   template.job_template_id,
+                                   model.experiment_id,
+                                   model.cluster_id)
+
+        return {'model': {'id': id}}
+
+    def _unload(self, req, id, body):
+        """Unload model for online prediction"""
+        context = req.environ['meteos.context']
+
+        LOG.debug("Unload model with request: %s", id)
+
+        try:
+            model = self.engine_api.get_model(context, id)
+            experiment = self.engine_api.get_experiment(
+                context, model.experiment_id)
+            template = self.engine_api.get_template(
+                context, experiment.template_id)
+        except exception.NotFound:
+            raise exc.HTTPNotFound()
+
+        self.engine_api.unload_model(context,
+                                     id,
+                                     model.dataset_format,
+                                     model.model_type,
+                                     template.job_template_id,
+                                     model.experiment_id,
+                                     model.cluster_id)
+
+        return {'model': {'id': id}}
+
+
+class ModelController(wsgi.Controller, ModelMixin, wsgi.AdminActionsMixin):
 
     """The Models API v1 controller for the OpenStack API."""
     resource_name = 'model'
@@ -152,6 +206,16 @@ class ModelController(wsgi.Controller, wsgi.AdminActionsMixin):
                                                  swift_password)
 
         return self._view_builder.detail(req, new_model)
+
+    @wsgi.action('os-load')
+    def load(self, req, id, body):
+        """Load model."""
+        return self._load(req, id, body)
+
+    @wsgi.action('os-unload')
+    def unload(self, req, id, body):
+        """Unload model."""
+        return self._unload(req, id, body)
 
 
 def create_resource():

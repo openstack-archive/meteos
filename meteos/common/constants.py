@@ -15,11 +15,13 @@
 
 STATUS_NEW = 'new'
 STATUS_CREATING = 'creating'
+STATUS_DEACTIVATING = 'deactivating'
 STATUS_DELETING = 'deleting'
 STATUS_DELETED = 'deleted'
 STATUS_ERROR = 'error'
 STATUS_ERROR_DELETING = 'error_deleting'
 STATUS_AVAILABLE = 'available'
+STATUS_ACTIVATING = 'activating'
 STATUS_ACTIVE = 'active'
 STATUS_INACTIVE = 'inactive'
 STATUS_UPDATING = 'updating'

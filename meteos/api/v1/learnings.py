@@ -138,6 +138,7 @@ class LearningController(wsgi.Controller, wsgi.AdminActionsMixin):
             context,
             display_name,
             display_description,
+            model.status,
             model_id,
             method,
             model.model_type,

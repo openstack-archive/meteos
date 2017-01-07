@@ -39,6 +39,7 @@ from meteos.engine import driver
 from meteos import utils
 from meteos import cluster
 
+EXIT_CODE='80577372-9349-463a-bbc3-1ca54f187cc9'
 LOG = log.getLogger(__name__)
 
 learning_opts = [
@@ -46,6 +47,10 @@ learning_opts = [
         'create_experiment_timeout',
         default=600,
         help="Time to wait for creating experiment (seconds)."),
+    cfg.IntOpt(
+        'load_model_timeout',
+        default=600,
+        help="Time to wait for loading model (seconds)."),
     cfg.IntOpt(
         'execute_job_timeout',
         default=600,
@@ -79,7 +84,6 @@ class GenericLearningDriver(driver.LearningDriver):
         self.sshpool = None
 
     def _run_ssh(self, ip, cmd_list, check_exit_code=True, attempts=1):
-        utils.check_ssh_injection(cmd_list)
 
         ssh_conn_timeout = self.configuration.ssh_conn_timeout
         ssh_port = self.configuration.ssh_port
@@ -417,6 +421,89 @@ class GenericLearningDriver(driver.LearningDriver):
         self._delete_hdfs_dir(context, cluster_id, dir_name)
         self.cluster_api.job_delete(context, job_id)
 
+    def _wait_for_model_to_load(self, ip, port, unload=False):
+
+        stdout = ""
+        stderr = ""
+
+        starttime = time.time()
+        deadline = starttime + self.configuration.load_model_timeout
+        interval = self.configuration.api_retry_interval
+        tries = 0
+
+        while True:
+
+            try:
+                stdout, stderr = self._run_ssh(ip,
+                                               ['netstat',
+                                               '-tnl',
+                                               '|',
+                                               'grep',
+                                               port])
+            except processutils.ProcessExecutionError:
+                pass
+
+            if not stdout and unload:
+                break
+            if stdout and not unload:
+                break
+
+            tries += 1
+            now = time.time()
+            if now > deadline:
+                msg = _("Timeout trying to load/unload model "
+                        "%s") % id
+                raise exception.Invalid(reason=msg)
+
+            LOG.debug("Waiting for load/unload to complete")
+            time.sleep(interval)
+
+    def load_model(self, context, request_specs):
+        """Load Model."""
+
+        job_args = {}
+
+        job_template_id = request_specs['job_template_id']
+        cluster_id = request_specs['cluster_id']
+        ip = self._get_master_ip(context, cluster_id)
+        port = request_specs['port']
+
+        job_args['method'] = 'online_predict'
+        job_args['dataset_format'] = request_specs['dataset_format']
+
+        model_args = {'type': request_specs['model_type'],
+                      'port': port}
+        job_args['model'] = model_args
+
+        LOG.debug("Execute job with args: %s", job_args)
+
+        configs = {'configs': {'edp.java.main_class': 'sahara.dummy',
+                               'edp.spark.adapt_for_swift': True},
+                   'args': [request_specs['id'],
+                            base64.b64encode(str(job_args))]}
+
+        result = self.cluster_api.job_create(
+            context, job_template_id, cluster_id, configs)
+
+        self._wait_for_model_to_load(ip, port)
+
+        return result
+
+    def unload_model(self, context, request_specs):
+        """Unload Model."""
+
+        ip = self._get_master_ip(context, request_specs['cluster_id'])
+        port = request_specs['port']
+
+        return  self._run_ssh(ip, ['echo',
+                                   base64.b64encode(EXIT_CODE),
+                                   '|',
+                                   'netcat',
+                                   'localhost',
+                                   port])
+
+        self._wait_for_model_to_load(ip, port, unload=True)
+
     def create_learning(self, context, request_specs):
         """Create Learning."""
 
@@ -445,20 +532,41 @@ class GenericLearningDriver(driver.LearningDriver):
 
         return result
 
+    def create_online_learning(self, context, request_specs):
+        """Create Learning."""
+
+        ip = self._get_master_ip(context, request_specs['cluster_id'])
+        learning_args = request_specs['args']
+        port = request_specs['port']
+
+        LOG.debug("Execute job with args: %s", learning_args)
+
+        return  self._run_ssh(ip, ['echo',
+                                   learning_args,
+                                   '|',
+                                   'netcat',
+                                   'localhost',
+                                   port])
+
     def delete_learning(self, context, cluster_id, job_id, id):
         """Delete Learning."""
 
         self.cluster_api.job_delete(context, job_id)
 
-    def _get_job_result(self, context, template_id, cluster_id, job_id):
+    def _get_master_ip(self, context, cluster_id):
 
-        result = {}
         cluster = self.cluster_api.get_cluster(context, cluster_id)
         node_groups = cluster.node_groups
 
         for node in node_groups:
             if 'master' in node['node_processes']:
                 ip = node['instances'][0]['management_ip']
+
+        return ip
+
+    def _get_job_result(self, context, template_id, cluster_id, job_id):
+
+        ip = self._get_master_ip(context, cluster_id)
 
         path = '/tmp/spark-edp/meteos-job-' + \
             template_id + '/' + job_id + '/stdout'

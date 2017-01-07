@@ -31,6 +31,7 @@
 
 
 import base64
+import os
 import sys
 import uuid
 import socket
@@ -54,6 +55,7 @@ from pyspark.mllib.regression import LinearRegressionModel
 from pyspark.mllib.tree import DecisionTree, DecisionTreeModel
 from pyspark.mllib.util import MLUtils
 
+EXIT_CODE='80577372-9349-463a-bbc3-1ca54f187cc9'
 
 class ModelController(object):
 
@@ -281,9 +283,12 @@ class Word2VecModelController(ModelController):
 
         synonyms = model.findSynonyms(keyword, num)
 
-        for word, cosine_distance in synonyms:
-            print("{}: {}".format(word, cosine_distance))
+        result = ""
 
+        for word, cosine_distance in synonyms:
+            result += "{}: {}".format(word, cosine_distance) + os.linesep
+
+        return result
 
 class FPGrowthModelController(ModelController):
 
@@ -428,6 +433,54 @@ class MeteosSparkController(object):
         self.load_data()
         self.create_and_save_model()
 
+    def _predict(self, dataset_format, params):
+
+        if dataset_format == 'libsvm':
+            return self.controller.predict_libsvm(self.model, params)
+        else:
+            return self.controller.predict(self.model, params)
+
+    def online_predict(self):
+
+        host = 'localhost'
+        port = int(self.job_args['model']['port'])
+        buf = 8192
+        dataset_format = self.job_args.get('dataset_format')
+
+        self.model = self.controller.load_model(self.context, self.modelpath)
+
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s_addr = (host, port)
+        s.bind(s_addr)
+
+        s.listen(1)
+
+        while(True):
+
+            conn, c_addr = s.accept()
+            EXIT = False
+
+            try:
+                while(True):
+
+                    input_value = conn.recv(buf)
+                    params = base64.b64decode(input_value)
+
+                    if params == EXIT_CODE:
+                        EXIT = True
+                    elif params:
+                        output = self._predict(dataset_format, params)
+                        conn.sendall(str(output))
+                    else:
+                        break
+            except Exception:
+                pass
+            finally:
+                conn.close()
+
+            if EXIT:
+                break
+
     def predict(self):
 
         predict_params = self.job_args['learning']['params']
@@ -437,13 +490,10 @@ class MeteosSparkController(object):
 
         dataset_format = self.job_args.get('dataset_format')
 
-        if dataset_format == 'libsvm':
-            self.output = self.controller.predict_libsvm(self.model, params)
-        else:
-            self.output = self.controller.predict(self.model, params)
+        output = self._predict(dataset_format, params)
 
-        if self.output is not None:
-            print(self.output)
+        if output is not None:
+            print(output)
 
 
 if __name__ == '__main__':

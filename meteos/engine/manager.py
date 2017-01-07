@@ -50,6 +50,9 @@ engine_manager_opts = [
     cfg.StrOpt('learning_driver',
                default='meteos.engine.drivers.generic.GenericLearningDriver',
                help='Driver to use for learning creation.'),
+    cfg.StrOpt('port_for_online_prediction',
+               default='55000',
+               help='Port for online prediction'),
 ]
 
 CONF = cfg.CONF
@@ -295,6 +298,55 @@ class LearningManager(manager.Manager):
         LOG.info(_LI("Model %s deleted successfully."), id)
         self.db.model_delete(context, id)
 
+    def load_model(self, context, request_spec=None):
+        """Load a Model."""
+        context = context.elevated()
+
+        LOG.debug("Load model with request: %s", request_spec)
+
+        port = self.configuration.port_for_online_prediction
+        request_spec['port'] = port
+
+        try:
+            self.driver.load_model(context, request_spec)
+
+        except Exception as e:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Model %s failed on loading."),
+                          request_spec['id'])
+                self.db.model_update(
+                    context, request_spec['id'],
+                    {'status': constants.STATUS_ERROR}
+                )
+
+        self.db.model_update(context,
+                             request_spec['id'],
+                             {'status' : constants.STATUS_ACTIVE})
+
+    def unload_model(self, context, request_spec=None):
+        """Unload a Model."""
+        context = context.elevated()
+        port = self.configuration.port_for_online_prediction
+        request_spec['port'] = port
+
+        LOG.debug("Unload model with request: %s", request_spec)
+
+        try:
+            self.driver.unload_model(context, request_spec)
+
+        except Exception as e:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Model %s failed on unloading."),
+                          request_spec['id'])
+                self.db.model_update(
+                    context, request_spec['id'],
+                    {'status': constants.STATUS_ERROR}
+                )
+
+        self.db.model_update(context,
+                             request_spec['id'],
+                             {'status' : constants.STATUS_AVAILABLE})
+
     def create_learning(self, context, request_spec=None):
         """Create a Learning."""
         context = context.elevated()
@@ -320,6 +372,29 @@ class LearningManager(manager.Manager):
 
         self._update_status(context, 'Learning', request_spec['id'],
                             job_id, stdout, stderr)
+
+    def create_online_learning(self, context, request_spec=None):
+        """Create a Online Learning."""
+        context = context.elevated()
+        port = self.configuration.port_for_online_prediction
+        request_spec['port'] = port
+
+        LOG.debug("Create learning with request: %s", request_spec)
+
+        try:
+            stdout, stderr = self.driver.create_online_learning(context, request_spec)
+
+        except Exception as e:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Learning %s failed on creation."),
+                          request_spec['id'])
+                self.db.learning_update(
+                    context, request_spec['id'],
+                    {'status': constants.STATUS_ERROR}
+                )
+
+        self._update_status(context, 'Learning', request_spec['id'],
+                            None, stdout, stderr)
 
     def delete_learning(self, context, cluster_id=None, job_id=None, id=None):
         """Deletes a Learning."""
