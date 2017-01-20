@@ -168,6 +168,32 @@ def upgrade():
         mysql_charset='utf8'
     )
 
+    model_evaluations = Table(
+        'model_evaluations', meta,
+        Column('created_at', DateTime),
+        Column('updated_at', DateTime),
+        Column('deleted_at', DateTime),
+        Column('deleted', String(length=36), default='False'),
+        Column('id', String(length=36), primary_key=True, nullable=False),
+        Column('model_id', String(length=36)),
+        Column('model_type', String(length=255)),
+        Column('source_dataset_url', String(length=255)),
+        Column('dataset_format', String(length=255)),
+        Column('user_id', String(length=255)),
+        Column('project_id', String(length=255)),
+        Column('cluster_id', String(length=36)),
+        Column('job_id', String(length=36)),
+        Column('status', String(length=255)),
+        Column('scheduled_at', DateTime),
+        Column('launched_at', DateTime),
+        Column('terminated_at', DateTime),
+        Column('display_name', String(length=255)),
+        Column('stdout', Text),
+        Column('stderr', Text),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8'
+    )
+
     learnings = Table(
         'learnings', meta,
         Column('created_at', DateTime),
@@ -198,7 +224,13 @@ def upgrade():
 
     # create all tables
     # Take care on create order for those with FK dependencies
-    tables = [services, templates, learnings, experiments, data_sets, models]
+    tables = [services,
+              templates,
+              learnings,
+              experiments,
+              data_sets,
+              models,
+              model_evaluations]
 
     for table in tables:
         if not table.exists():

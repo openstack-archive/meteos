@@ -292,6 +292,45 @@ def model_delete(context, model_id):
 #
 
 
+def model_evaluation_create(context, model_evaluation_values):
+    """Create new model_evaluation."""
+    return IMPL.model_evaluation_create(context, model_evaluation_values)
+
+
+def model_evaluation_update(context, model_evaluation_id, values):
+    """Update model_evaluation fields."""
+    return IMPL.model_evaluation_update(context, model_evaluation_id, values)
+
+
+def model_evaluation_get(context, model_evaluation_id):
+    """Get model_evaluation by id."""
+    return IMPL.model_evaluation_get(context, model_evaluation_id)
+
+
+def model_evaluation_get_all(context, filters=None, sort_key=None, sort_dir=None):
+    """Get all model_evaluations."""
+    return IMPL.model_evaluation_get_all(
+        context, filters=filters, sort_key=sort_key, sort_dir=sort_dir,
+    )
+
+
+def model_evaluation_get_all_by_project(context, project_id, filters=None,
+                             sort_key=None, sort_dir=None):
+    """Returns all model_evaluations with given project ID."""
+    return IMPL.model_evaluation_get_all_by_project(
+        context, project_id, filters=filters,
+        sort_key=sort_key, sort_dir=sort_dir,
+    )
+
+
+def model_evaluation_delete(context, model_evaluation_id):
+    """Delete model_evaluation."""
+    return IMPL.model_evaluation_delete(context, model_evaluation_id)
+
+
+#
+
+
 def learning_create(context, learning_values):
     """Create new learning."""
     return IMPL.learning_create(context, learning_values)

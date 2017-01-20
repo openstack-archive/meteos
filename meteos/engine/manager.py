@@ -106,6 +106,10 @@ class LearningManager(manager.Manager):
             updates['stdout'] = stdout
             self.db.model_update(context, id, updates)
 
+        elif resource_name == 'Model Evaluation':
+            updates['stdout'] = stdout.rstrip('\n')
+            self.db.model_evaluation_update(context, id, updates)
+
         elif resource_name == 'Learning':
             updates['stdout'] = stdout.rstrip('\n')
             self.db.learning_update(context, id, updates)
@@ -346,6 +350,50 @@ class LearningManager(manager.Manager):
         self.db.model_update(context,
                              request_spec['id'],
                              {'status' : constants.STATUS_AVAILABLE})
+
+    def create_model_evaluation(self, context, request_spec=None):
+        """Create a Model Evaluation."""
+        context = context.elevated()
+
+        LOG.debug("Create model evaluation with request: %s", request_spec)
+
+        try:
+            job_id = self.driver.create_model_evaluation(context, request_spec)
+            stdout, stderr = self.driver.get_job_result(
+                context,
+                job_id,
+                request_spec['template_id'],
+                request_spec['cluster_id'])
+
+        except Exception as e:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Model Evaluation %s failed on creation."),
+                          request_spec['id'])
+                self.db.model_evaluation_update(
+                    context, request_spec['id'],
+                    {'status': constants.STATUS_ERROR}
+                )
+
+        self._update_status(context, 'Model Evaluation', request_spec['id'],
+                            job_id, stdout, stderr)
+
+    def delete_model_evaluation(self, context, cluster_id=None, job_id=None, id=None):
+        """Deletes a Model Evaluation."""
+        context = context.elevated()
+
+        try:
+            self.driver.delete_model_evaluation(context, cluster_id, job_id, id)
+
+        except Exception as e:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Model Evaluation %s failed on deletion."), id)
+                self.db.model_evaluation_update(
+                    context, id,
+                    {'status': constants.STATUS_ERROR_DELETING}
+                )
+
+        self.db.model_evaluation_delete(context, id)
+        LOG.info(_LI("Model Evaluation %s deleted successfully."), id)
 
     def create_learning(self, context, request_spec=None):
         """Create a Learning."""

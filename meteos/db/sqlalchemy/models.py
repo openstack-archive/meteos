@@ -174,6 +174,30 @@ class Model(BASE, MeteosBase):
     stderr = Column(Text)
 
 
+class Model_Evaluation(BASE, MeteosBase):
+
+    __tablename__ = 'model_evaluations'
+    id = Column(String(36), primary_key=True)
+    model_id = Column(String(36))
+    model_type = Column(String(255))
+    source_dataset_url = Column(String(255))
+    dataset_format = Column(String(255))
+    cluster_id = Column(String(36))
+    job_id = Column(String(36))
+
+    deleted = Column(String(36), default='False')
+    user_id = Column(String(255))
+    project_id = Column(String(255))
+
+    display_name = Column(String(255))
+
+    status = Column(String(255))
+    launched_at = Column(DateTime)
+
+    stdout = Column(Text)
+    stderr = Column(Text)
+
+
 class Learning(BASE, MeteosBase):
 
     __tablename__ = 'learnings'

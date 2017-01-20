@@ -48,6 +48,10 @@ from pyspark.mllib.feature import Word2Vec
 from pyspark.mllib.feature import Word2VecModel
 from pyspark.mllib.fpm import FPGrowth
 from pyspark.mllib.fpm import FPGrowthModel
+from pyspark.mllib.evaluation import BinaryClassificationMetrics
+from pyspark.mllib.evaluation import RegressionMetrics
+from pyspark.mllib.evaluation import MulticlassMetrics
+from pyspark.mllib.evaluation import RankingMetrics
 from pyspark.mllib.recommendation import ALS, MatrixFactorizationModel, Rating
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.regression import LinearRegressionWithSGD
@@ -55,7 +59,9 @@ from pyspark.mllib.regression import LinearRegressionModel
 from pyspark.mllib.tree import DecisionTree, DecisionTreeModel
 from pyspark.mllib.util import MLUtils
 
+
 EXIT_CODE='80577372-9349-463a-bbc3-1ca54f187cc9'
+
 
 class ModelController(object):
 
@@ -70,6 +76,10 @@ class ModelController(object):
 
     def create_model_libsvm(self, data, params):
         """Is called to create mode."""
+        raise NotImplementedError()
+
+    def evaluate_model(self, context, model, data):
+        """Is called to evaluate mode."""
         raise NotImplementedError()
 
     def load_model(self, context, path):
@@ -89,6 +99,7 @@ class ModelController(object):
         if values[0] == -1:
             values[0] = 0
         return LabeledPoint(values[0], values[1:])
+
 
 class KMeansModelController(ModelController):
 
@@ -123,16 +134,41 @@ class RecommendationController(ModelController):
     def __init__(self):
         super(RecommendationController, self).__init__()
 
+    def _create_ratings(self, data):
+
+        return data.map(lambda l: l.split(','))\
+                   .map(lambda l: Rating(int(l[0]), int(l[1]), float(l[2])))
+
     def create_model(self, data, params):
 
         # Build the recommendation model using Alternating Least Squares
         rank = params.get('rank', 10)
         numIterations = params.get('numIterations', 10)
 
-        ratings = data.map(lambda l: l.split(','))\
-            .map(lambda l: Rating(int(l[0]), int(l[1]), float(l[2])))
+        ratings = self._create_ratings(data)
 
         return ALS.train(ratings, rank, numIterations)
+
+    def evaluate_model(self, context, model, data):
+
+        ratings = self._create_ratings(data)
+        testData = ratings.map(lambda p: (p.user, p.product))
+
+        predictions = model.predictAll(testData)\
+                          .map(lambda r: ((r.user, r.product), r.rating))
+
+        ratingsTuple = ratings.map(lambda r: ((r.user, r.product), r.rating))
+        scoreAndLabels = predictions.join(ratingsTuple).map(lambda tup: tup[1])
+
+        # Instantiate regression metrics to compare predicted and actual ratings
+        metrics = RegressionMetrics(scoreAndLabels)
+
+        result = "{}: {}".format("MAE", metrics.meanAbsoluteError) + os.linesep\
+               + "{}: {}".format("MSE", metrics.meanSquaredError) + os.linesep\
+               + "{}: {}".format("RMSE", metrics.rootMeanSquaredError) + os.linesep\
+               + "{}: {}".format("R-squared", metrics.r2)
+
+        return result
 
     def load_model(self, context, path):
         return MatrixFactorizationModel.load(context, path)
@@ -167,6 +203,20 @@ class LinearRegressionModelController(ModelController):
                                              iterations=iterations,
                                              step=step)
 
+    def evaluate_model(self, context, model, data):
+
+        points = data.map(self.parsePoint)
+        scoreAndLabels = points.map(lambda p: (float(model.predict(p.features)), p.label))
+
+        metrics = RegressionMetrics(scoreAndLabels)
+
+        result = "{}: {}".format("MAE", metrics.meanAbsoluteError) + os.linesep\
+               + "{}: {}".format("MSE", metrics.meanSquaredError) + os.linesep\
+               + "{}: {}".format("RMSE", metrics.rootMeanSquaredError) + os.linesep\
+               + "{}: {}".format("R-squared", metrics.r2)
+
+        return result
+
     def load_model(self, context, path):
         return LinearRegressionModel.load(context, path)
 
@@ -194,6 +244,18 @@ class LogisticRegressionModelController(ModelController):
         numIterations = params.get('numIterations', 10)
 
         return LogisticRegressionWithSGD.train(data, numIterations)
+
+    def evaluate_model(self, context, model, data):
+
+        predictionAndLabels = data.map(self.parsePoint)\
+                                  .map(lambda lp: (float(model.predict(lp.features)), lp.label))
+
+        metrics = BinaryClassificationMetrics(predictionAndLabels)
+
+        result = "{}: {}".format("Area under PR", metrics.areaUnderPR) + os.linesep\
+               + "{}: {}".format("Area under ROC", metrics.areaUnderROC)
+
+        return result
 
     def load_model(self, context, path):
         return LogisticRegressionModel.load(context, path)
@@ -240,6 +302,18 @@ class DecisionTreeModelController(ModelController):
                                            impurity=impurity,
                                            maxDepth=maxDepth,
                                            maxBins=maxBins)
+
+    def evaluate_model(self, context, model, data):
+
+        predictions = model.predict(data.map(lambda x: x.features))
+        predictionAndLabels = data.map(lambda lp: lp.label).zip(predictions)
+        metrics = MulticlassMetrics(predictionAndLabels)
+
+        result = "{}: {}".format("Precision", metrics.precision()) + os.linesep\
+               + "{}: {}".format("Recall", metrics.recall()) + os.linesep\
+               + "{}: {}".format("F1 Score", metrics.fMeasure())
+
+        return result
 
     def load_model(self, context, path):
         return DecisionTreeModel.load(context, path)
@@ -289,6 +363,7 @@ class Word2VecModelController(ModelController):
             result += "{}: {}".format(word, cosine_distance) + os.linesep
 
         return result
+
 
 class FPGrowthModelController(ModelController):
 
@@ -406,6 +481,19 @@ class MeteosSparkController(object):
 
         if self.model:
             self.model.save(self.context, self.modelpath)
+
+    def evaluate_model(self):
+
+        self.load_data()
+        self.model = self.controller.load_model(self.context,
+                                                self.modelpath)
+
+        output = self.controller.evaluate_model(self.context,
+                                                self.model,
+                                                self.data)
+
+        if output is not None:
+            print(output)
 
     def download_dataset(self):
 

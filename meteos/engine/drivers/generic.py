@@ -504,6 +504,48 @@ class GenericLearningDriver(driver.LearningDriver):
 
         self._wait_for_model_to_load(ip, port, unload=True)
 
+    def create_model_evaluation(self, context, request_specs):
+        """Create Model Evaluation."""
+
+        job_args = {}
+
+        job_template_id = request_specs['job_template_id']
+        cluster_id = request_specs['cluster_id']
+        source_dataset_url = request_specs['source_dataset_url']
+
+        job_args['method'] = 'evaluate_model'
+        job_args['dataset_format'] = request_specs['dataset_format']
+        job_args['source_dataset_url'] = source_dataset_url
+
+        model_args = {'type': request_specs['model_type']}
+        job_args['model'] = model_args
+
+        swift_args = {}
+
+        if source_dataset_url.count('swift'):
+            swift_args['tenant'] = request_specs['swift_tenant']
+            swift_args['username'] = request_specs['swift_username']
+            swift_args['password'] = request_specs['swift_password']
+
+        job_args['swift'] = swift_args
+
+        LOG.debug("Execute job with args: %s", job_args)
+
+        configs = {'configs': {'edp.java.main_class': 'sahara.dummy',
+                               'edp.spark.adapt_for_swift': True},
+                   'args': [request_specs['model_id'],
+                            base64.b64encode(str(job_args))]}
+
+        result = self.cluster_api.job_create(
+            context, job_template_id, cluster_id, configs)
+
+        return result
+
+    def delete_model_evaluation(self, context, cluster_id, job_id, id):
+        """Delete Model Evaluation."""
+
+        self.cluster_api.job_delete(context, job_id)
+
     def create_learning(self, context, request_specs):
         """Create Learning."""
 
