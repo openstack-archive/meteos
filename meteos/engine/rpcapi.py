@@ -116,6 +116,17 @@ class LearningAPI(object):
         return self.cast(context, self.make_msg('unload_model',
                                                 request_spec=request_spec_p))
 
+    def create_model_evaluation(self, context, request_spec):
+        request_spec_p = jsonutils.to_primitive(request_spec)
+        return self.cast(context, self.make_msg('create_model_evaluation',
+                                                request_spec=request_spec_p))
+
+    def delete_model_evaluation(self, context, cluster_id, job_id, id):
+        return self.call(context, self.make_msg('delete_model_evaluation',
+                                                cluster_id=cluster_id,
+                                                job_id=job_id,
+                                                id=id))
+
     def create_learning(self, context, request_spec):
         request_spec_p = jsonutils.to_primitive(request_spec)
         return self.cast(context, self.make_msg('create_learning',

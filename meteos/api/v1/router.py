@@ -25,6 +25,7 @@ from meteos.api.v1 import experiments
 from meteos.api.v1 import templates
 from meteos.api.v1 import datasets
 from meteos.api.v1 import models
+from meteos.api.v1 import model_evaluations
 from meteos.api import versions
 
 
@@ -69,5 +70,11 @@ class APIRouter(meteos.api.openstack.APIRouter):
         self.resources['models'] = models.create_resource()
         mapper.resource("model", "models",
                         controller=self.resources['models'],
+                        collection={'detail': 'GET'},
+                        member={'action': 'POST'})
+
+        self.resources['model_evaluations'] = model_evaluations.create_resource()
+        mapper.resource("model_evaluations", "model_evaluations",
+                        controller=self.resources['model_evaluations'],
                         collection={'detail': 'GET'},
                         member={'action': 'POST'})

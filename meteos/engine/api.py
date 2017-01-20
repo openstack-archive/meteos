@@ -444,6 +444,99 @@ class API(base.Base):
                 updates = {'status': constants.STATUS_ERROR}
                 self.db.model_update(context, id, updates)
 
+    def get_all_model_evaluations(self, context, search_opts=None,
+                          sort_key='created_at', sort_dir='desc'):
+        policy.check_policy(context, 'model_evaluation', 'get_all')
+
+        if search_opts is None:
+            search_opts = {}
+
+        LOG.debug("Searching for model evaluations by: %s", six.text_type(search_opts))
+
+        project_id = context.project_id
+
+        model_evaluations = self.db.model_evaluation_get_all_by_project(context,
+                                                        project_id,
+                                                        sort_key=sort_key,
+                                                        sort_dir=sort_dir)
+
+        if search_opts:
+            results = []
+            for s in model_evaluations:
+                # values in search_opts can be only strings
+                if all(s.get(k, None) == v for k, v in search_opts.items()):
+                    results.append(s)
+            model_evaluations = results
+        return model_evaluations
+
+    def get_model_evaluation(self, context, model_evaluation_id):
+        rv = self.db.model_evaluation_get(context, model_evaluation_id)
+        return rv
+
+    def create_model_evaluation(self, context, name, source_dataset_url,
+                        model_id, model_type, dataset_format, template_id,
+                        job_template_id, experiment_id, cluster_id,
+                        swift_tenant, swift_username, swift_password):
+        """Create a Model Evaluation"""
+        policy.check_policy(context, 'model_evaluation', 'create')
+
+        model_evaluation = {'id': None,
+                    'display_name': name,
+                    'model_id': model_id,
+                    'model_type': model_type,
+                    'source_dataset_url': source_dataset_url,
+                    'dataset_format': dataset_format,
+                    'user_id': context.user_id,
+                    'project_id': context.project_id,
+                    }
+
+        try:
+            result = self.db.model_evaluation_create(context, model_evaluation)
+            result['template_id'] = template_id
+            result['job_template_id'] = job_template_id
+            result['cluster_id'] = cluster_id
+            result['swift_tenant'] = swift_tenant
+            result['swift_username'] = swift_username
+            result['swift_password'] = swift_password
+
+            self.engine_rpcapi.create_model_evaluation(context, result)
+            updates = {'status': constants.STATUS_CREATING}
+            self.db.model_evaluation_update(context,
+                                            result['id'],
+                                            updates)
+
+            LOG.info(_LI("Accepted creation of model evaluation %s."), result['id'])
+        except Exception:
+            with excutils.save_and_reraise_exception():
+                self.db.model_evaluation_delete(context, result['id'])
+
+        # Retrieve the model_evaluation with instance details
+        model_evaluation = self.db.model_evaluation_get(context, result['id'])
+
+        return model_evaluation
+
+    def delete_model_evaluation(self, context, id, force=False):
+        """Delete model evaluation."""
+
+        policy.check_policy(context, 'model_evaluation', 'delete')
+
+        model_evaluation = self.db.model_evaluation_get(context, id)
+
+        statuses = (constants.STATUS_AVAILABLE, constants.STATUS_ERROR,
+                    constants.STATUS_INACTIVE)
+        if not (force or model_evaluation['status'] in statuses):
+            msg = _("Model Evaluation status must be one of %(statuses)s") % {
+                "statuses": statuses}
+            raise exception.InvalidLearning(reason=msg)
+
+        if model_evaluation.job_id:
+            self.engine_rpcapi.delete_model_evaluation(context,
+                                               model_evaluation['cluster_id'],
+                                               model_evaluation['job_id'],
+                                               id)
+        else:
+            self.db.model_evaluation_delete(context, id)
+
     def get_all_learnings(self, context, search_opts=None,
                           sort_key='created_at', sort_dir='desc'):
         policy.check_policy(context, 'learning', 'get_all')

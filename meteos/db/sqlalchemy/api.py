@@ -811,6 +811,115 @@ def model_delete(context, model_id):
 #
 
 
+def _model_evaluation_get_query(context, session=None):
+    if session is None:
+        session = get_session()
+    return model_query(context, models.Model_Evaluation, session=session)
+
+
+@require_context
+def model_evaluation_get(context, model_evaluation_id, session=None):
+    result = _model_evaluation_get_query(
+        context, session).filter_by(id=model_evaluation_id).first()
+
+    if result is None:
+        raise exception.NotFound()
+
+    return result
+
+
+@require_context
+@oslo_db_api.wrap_db_retry(max_retries=5, retry_on_deadlock=True)
+def model_evaluation_update(context, model_evaluation_id, update_values):
+    session = get_session()
+    values = copy.deepcopy(update_values)
+
+    with session.begin():
+        model_evaluation_ref = model_evaluation_get(context,
+                                                    model_evaluation_id,
+                                                    session=session)
+
+        model_evaluation_ref.update(values)
+        model_evaluation_ref.save(session=session)
+        return model_evaluation_ref
+
+
+@require_context
+def model_evaluation_create(context, model_evaluation_values):
+    values = copy.deepcopy(model_evaluation_values)
+    values = ensure_dict_has_id(values)
+
+    session = get_session()
+    model_evaluation_ref = models.Model_Evaluation()
+    model_evaluation_ref.update(values)
+
+    with session.begin():
+        model_evaluation_ref.save(session=session)
+
+        # NOTE(u_glide): Do so to prevent errors with relationships
+        return model_evaluation_get(context, model_evaluation_ref['id'], session=session)
+
+
+def _model_evaluation_get_all_with_filters(context, project_id=None, filters=None,
+                                   sort_key=None, sort_dir=None):
+    if not sort_key:
+        sort_key = 'created_at'
+    if not sort_dir:
+        sort_dir = 'desc'
+    query = (
+        _model_evaluation_get_query(context).join()
+    )
+
+    # Apply filters
+    if not filters:
+        filters = {}
+
+    # Apply sorting
+    if sort_dir.lower() not in ('desc', 'asc'):
+        msg = _("Wrong sorting data provided: sort key is '%(sort_key)s' "
+                "and sort direction is '%(sort_dir)s'.") % {
+                    "sort_key": sort_key, "sort_dir": sort_dir}
+        raise exception.InvalidInput(reason=msg)
+
+    def apply_sorting(model_evaluation, query):
+        sort_attr = getattr(model_evaluation, sort_key)
+        sort_method = getattr(sort_attr, sort_dir.lower())
+        return query.order_by(sort_method())
+
+    try:
+        query = apply_sorting(models.Model_Evaluation, query)
+    except AttributeError:
+        msg = _("Wrong sorting key provided - '%s'.") % sort_key
+        raise exception.InvalidInput(reason=msg)
+
+    # Returns list of model_evaluations that satisfy filters.
+    query = query.all()
+    return query
+
+
+@require_context
+def model_evaluation_get_all_by_project(context, project_id, filters=None,
+                                sort_key=None, sort_dir=None):
+    """Returns list of model_evaluations with given project ID."""
+    query = _model_evaluation_get_all_with_filters(
+        context, project_id=project_id, filters=filters,
+        sort_key=sort_key, sort_dir=sort_dir,
+    )
+    return query
+
+
+@require_context
+def model_evaluation_delete(context, model_evaluation_id):
+    session = get_session()
+
+    with session.begin():
+        model_evaluation_ref = model_evaluation_get(context, model_evaluation_id, session)
+        model_evaluation_ref.soft_delete(session=session)
+
+
+#
+
+
 def _learning_get_query(context, session=None):
     if session is None:
         session = get_session()
