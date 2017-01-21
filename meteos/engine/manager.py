@@ -355,6 +355,7 @@ class LearningManager(manager.Manager):
         """Create a Model Evaluation."""
         context = context.elevated()
 
+        model_evaluation_id = request_spec['id']
         LOG.debug("Create model evaluation with request: %s", request_spec)
 
         try:
@@ -368,13 +369,13 @@ class LearningManager(manager.Manager):
         except Exception as e:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Model Evaluation %s failed on creation."),
-                          request_spec['id'])
+                          model_evaluation_id)
                 self.db.model_evaluation_update(
-                    context, request_spec['id'],
+                    context, model_evaluation_id,
                     {'status': constants.STATUS_ERROR}
                 )
 
-        self._update_status(context, 'Model Evaluation', request_spec['id'],
+        self._update_status(context, 'Model Evaluation', model_evaluation_id,
                             job_id, stdout, stderr)
 
     def delete_model_evaluation(self, context, cluster_id=None, job_id=None, id=None):
@@ -399,6 +400,7 @@ class LearningManager(manager.Manager):
         """Create a Learning."""
         context = context.elevated()
 
+        learning_id = request_spec['id']
         LOG.debug("Create learning with request: %s", request_spec)
 
         try:
@@ -412,13 +414,13 @@ class LearningManager(manager.Manager):
         except Exception as e:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Learning %s failed on creation."),
-                          request_spec['id'])
+                          learning_id)
                 self.db.learning_update(
-                    context, request_spec['id'],
+                    context, learning_id,
                     {'status': constants.STATUS_ERROR}
                 )
 
-        self._update_status(context, 'Learning', request_spec['id'],
+        self._update_status(context, 'Learning', learning_id,
                             job_id, stdout, stderr)
 
     def create_online_learning(self, context, request_spec=None):
