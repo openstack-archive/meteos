@@ -26,20 +26,16 @@ from oslo_concurrency import processutils
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import excutils
-from oslo_utils import importutils
-from oslo_utils import units
-import retrying
-import six
 
+from meteos import cluster
 from meteos.common import constants as const
 from meteos import context
 from meteos import exception
 from meteos.i18n import _, _LE, _LI, _LW
 from meteos.engine import driver
 from meteos import utils
-from meteos import cluster
 
-EXIT_CODE='80577372-9349-463a-bbc3-1ca54f187cc9'
+EXIT_CODE = '80577372-9349-463a-bbc3-1ca54f187cc9'
 LOG = log.getLogger(__name__)
 
 learning_opts = [
@@ -77,8 +73,9 @@ class GenericLearningDriver(driver.LearningDriver):
 
     def __init__(self, *args, **kwargs):
         """Do initialization."""
-        super(GenericLearningDriver, self).__init__(
-            [False, True], *args, **kwargs)
+        super(GenericLearningDriver, self).__init__([False, True],
+                                                    *args,
+                                                    **kwargs)
         self.admin_context = context.get_admin_context()
         self.cluster_api = cluster.API()
         self.sshpool = None
@@ -162,7 +159,8 @@ class GenericLearningDriver(driver.LearningDriver):
         job_args['method'] = method
 
         # Set parameters of DataSet
-        job_args['source_dataset_url'] = request_specs.get('source_dataset_url')
+        job_args['source_dataset_url'] = request_specs\
+            .get('source_dataset_url')
         job_args['dataset_format'] = request_specs.get('dataset_format')
         dataset_args = {'params': request_specs.get('params')}
         job_args['dataset'] = dataset_args
@@ -420,10 +418,10 @@ class GenericLearningDriver(driver.LearningDriver):
             try:
                 stdout, stderr = self._run_ssh(ip,
                                                ['netstat',
-                                               '-tnl',
-                                               '|',
-                                               'grep',
-                                               port])
+                                                '-tnl',
+                                                '|',
+                                                'grep',
+                                                port])
             except processutils.ProcessExecutionError:
                 pass
 
@@ -463,12 +461,12 @@ class GenericLearningDriver(driver.LearningDriver):
         ip = self._get_master_ip(context, request_specs['cluster_id'])
         port = request_specs['port']
 
-        return  self._run_ssh(ip, ['echo',
-                                   base64.b64encode(EXIT_CODE),
-                                   '|',
-                                   'netcat',
-                                   'localhost',
-                                   port])
+        return self._run_ssh(ip, ['echo',
+                                  base64.b64encode(EXIT_CODE),
+                                  '|',
+                                  'netcat',
+                                  'localhost',
+                                  port])
 
         self._wait_for_model_to_load(ip, port, unload=True)
 
@@ -504,12 +502,12 @@ class GenericLearningDriver(driver.LearningDriver):
 
         LOG.debug("Execute job with args: %s", learning_args)
 
-        return  self._run_ssh(ip, ['echo',
-                                   learning_args,
-                                   '|',
-                                   'netcat',
-                                   'localhost',
-                                   port])
+        return self._run_ssh(ip, ['echo',
+                                  learning_args,
+                                  '|',
+                                  'netcat',
+                                  'localhost',
+                                  port])
 
     def delete_learning(self, context, cluster_id, job_id, id):
         """Delete Learning."""

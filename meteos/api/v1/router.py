@@ -20,12 +20,12 @@ WSGI middleware for OpenStack Learning API v1.
 """
 
 import meteos.api.openstack
-from meteos.api.v1 import learnings
-from meteos.api.v1 import experiments
-from meteos.api.v1 import templates
 from meteos.api.v1 import datasets
-from meteos.api.v1 import models
+from meteos.api.v1 import experiments
+from meteos.api.v1 import learnings
 from meteos.api.v1 import model_evaluations
+from meteos.api.v1 import models
+from meteos.api.v1 import templates
 from meteos.api import versions
 
 

@@ -30,11 +30,7 @@ from oslo_config import cfg
 from oslo_log import log
 from oslo_middleware import cors
 from oslo_utils import netutils
-import six
 
-from meteos.common import constants
-from meteos import exception
-from meteos.i18n import _
 
 CONF = cfg.CONF
 log.register_options(CONF)

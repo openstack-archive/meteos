@@ -32,35 +32,40 @@
 
 import base64
 import os
+import socket
 import sys
 import uuid
-import socket
+
 from ast import literal_eval
-from numpy import array
 from math import sqrt
+from numpy import array
 from pyspark import SparkContext
 
-from pyspark.mllib.linalg import SparseVector
-from pyspark.mllib.classification import LogisticRegressionWithSGD
 from pyspark.mllib.classification import LogisticRegressionModel
-from pyspark.mllib.clustering import KMeans, KMeansModel
+from pyspark.mllib.classification import LogisticRegressionWithSGD
+from pyspark.mllib.clustering import KMeans
+from pyspark.mllib.clustering import KMeansModel
+from pyspark.mllib.evaluation import BinaryClassificationMetrics
+from pyspark.mllib.evaluation import MulticlassMetrics
+from pyspark.mllib.evaluation import RankingMetrics
+from pyspark.mllib.evaluation import RegressionMetrics
 from pyspark.mllib.feature import Word2Vec
 from pyspark.mllib.feature import Word2VecModel
 from pyspark.mllib.fpm import FPGrowth
 from pyspark.mllib.fpm import FPGrowthModel
-from pyspark.mllib.evaluation import BinaryClassificationMetrics
-from pyspark.mllib.evaluation import RegressionMetrics
-from pyspark.mllib.evaluation import MulticlassMetrics
-from pyspark.mllib.evaluation import RankingMetrics
-from pyspark.mllib.recommendation import ALS, MatrixFactorizationModel, Rating
+from pyspark.mllib.linalg import SparseVector
+from pyspark.mllib.recommendation import ALS
+from pyspark.mllib.recommendation import MatrixFactorizationModel
+from pyspark.mllib.recommendation import Rating
 from pyspark.mllib.regression import LabeledPoint
-from pyspark.mllib.regression import LinearRegressionWithSGD
 from pyspark.mllib.regression import LinearRegressionModel
-from pyspark.mllib.tree import DecisionTree, DecisionTreeModel
+from pyspark.mllib.regression import LinearRegressionWithSGD
+from pyspark.mllib.tree import DecisionTree
+from pyspark.mllib.tree import DecisionTreeModel
 from pyspark.mllib.util import MLUtils
 
 
-EXIT_CODE='80577372-9349-463a-bbc3-1ca54f187cc9'
+EXIT_CODE = '80577372-9349-463a-bbc3-1ca54f187cc9'
 
 
 class ModelController(object):
@@ -155,12 +160,11 @@ class RecommendationController(ModelController):
         testData = ratings.map(lambda p: (p.user, p.product))
 
         predictions = model.predictAll(testData)\
-                          .map(lambda r: ((r.user, r.product), r.rating))
+                           .map(lambda r: ((r.user, r.product), r.rating))
 
         ratingsTuple = ratings.map(lambda r: ((r.user, r.product), r.rating))
         scoreAndLabels = predictions.join(ratingsTuple).map(lambda tup: tup[1])
 
-        # Instantiate regression metrics to compare predicted and actual ratings
         metrics = RegressionMetrics(scoreAndLabels)
 
         result = "{}: {}".format("MAE", metrics.meanAbsoluteError) + os.linesep\
@@ -287,7 +291,7 @@ class DecisionTreeModelController(ModelController):
         index = ','.join(index_l)
         value = ','.join(value_l)
 
-        parsed_str = '(' + param_len + ', [' + index  + '],[' + value  + '])'
+        parsed_str = '(' + param_len + ', [' + index + '],[' + value + '])'
 
         return SparseVector.parse(parsed_str)
 
@@ -378,7 +382,7 @@ class FPGrowthModelController(ModelController):
 
         transactions = data.map(lambda line: line.strip().split(' '))
 
-        model= FPGrowth.train(transactions,
+        model = FPGrowth.train(transactions,
                               minSupport=minSupport,
                               numPartitions=numPartitions)
 
@@ -431,7 +435,7 @@ class MeteosSparkController(object):
         if collect:
             self.data.collect()
         self.data.saveAsTextFile(self.datapath)
-        print self.data.take(10)
+        print(self.data.take(10))
 
     def load_data(self):
 
@@ -475,7 +479,8 @@ class MeteosSparkController(object):
         dataset_format = self.job_args.get('dataset_format')
 
         if dataset_format == 'libsvm':
-            self.model = self.controller.create_model_libsvm(self.data, list_params)
+            self.model = self.controller.create_model_libsvm(self.data,
+                                                             list_params)
         else:
             self.model = self.controller.create_model(self.data, list_params)
 

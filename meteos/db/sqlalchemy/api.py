@@ -19,10 +19,8 @@
 """Implementation of SQLAlchemy backend."""
 
 import copy
-import datetime
 from functools import wraps
 import sys
-import uuid
 import warnings
 
 # NOTE(uglide): Required to override default oslo_db Query class
@@ -30,21 +28,13 @@ import meteos.db.sqlalchemy.query  # noqa
 
 from oslo_config import cfg
 from oslo_db import api as oslo_db_api
-from oslo_db import exception as db_exception
 from oslo_db import options as db_options
 from oslo_db.sqlalchemy import session
 from oslo_db.sqlalchemy import utils as db_utils
 from oslo_log import log
-from oslo_utils import timeutils
 from oslo_utils import uuidutils
-import six
-from sqlalchemy import and_
-from sqlalchemy import or_
-from sqlalchemy.orm import joinedload
-from sqlalchemy.sql.expression import true
 from sqlalchemy.sql import func
 
-from meteos.common import constants
 from meteos.db.sqlalchemy import models
 from meteos import exception
 from meteos.i18n import _, _LE, _LW
@@ -237,19 +227,6 @@ def ensure_dict_has_id(model_dict):
     if not model_dict.get('id'):
         model_dict['id'] = uuidutils.generate_uuid()
     return model_dict
-
-
-def _sync_learnings(context, project_id, user_id, session):
-    (learnings, gigs) = learning_data_get_for_project(context,
-                                                      project_id,
-                                                      user_id,
-                                                      session=session)
-    return {'learnings': learnings}
-
-
-QUOTA_SYNC_FUNCTIONS = {
-    '_sync_learnings': _sync_learnings,
-}
 
 
 #
@@ -857,11 +834,14 @@ def model_evaluation_create(context, model_evaluation_values):
         model_evaluation_ref.save(session=session)
 
         # NOTE(u_glide): Do so to prevent errors with relationships
-        return model_evaluation_get(context, model_evaluation_ref['id'], session=session)
+        return model_evaluation_get(context,
+                                    model_evaluation_ref['id'],
+                                    session=session)
 
 
-def _model_evaluation_get_all_with_filters(context, project_id=None, filters=None,
-                                   sort_key=None, sort_dir=None):
+def _model_evaluation_get_all_with_filters(context, project_id=None,
+                                           filters=None, sort_key=None,
+                                           sort_dir=None):
     if not sort_key:
         sort_key = 'created_at'
     if not sort_dir:
@@ -899,7 +879,7 @@ def _model_evaluation_get_all_with_filters(context, project_id=None, filters=Non
 
 @require_context
 def model_evaluation_get_all_by_project(context, project_id, filters=None,
-                                sort_key=None, sort_dir=None):
+                                        sort_key=None, sort_dir=None):
     """Returns list of model_evaluations with given project ID."""
     query = _model_evaluation_get_all_with_filters(
         context, project_id=project_id, filters=filters,
@@ -913,7 +893,9 @@ def model_evaluation_delete(context, model_evaluation_id):
     session = get_session()
 
     with session.begin():
-        model_evaluation_ref = model_evaluation_get(context, model_evaluation_id, session)
+        model_evaluation_ref = model_evaluation_get(context,
+                                                    model_evaluation_id,
+                                                    session)
         model_evaluation_ref.soft_delete(session=session)
 
 

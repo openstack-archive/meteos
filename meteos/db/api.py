@@ -307,7 +307,8 @@ def model_evaluation_get(context, model_evaluation_id):
     return IMPL.model_evaluation_get(context, model_evaluation_id)
 
 
-def model_evaluation_get_all(context, filters=None, sort_key=None, sort_dir=None):
+def model_evaluation_get_all(context, filters=None,
+                             sort_key=None, sort_dir=None):
     """Get all model_evaluations."""
     return IMPL.model_evaluation_get_all(
         context, filters=filters, sort_key=sort_key, sort_dir=sort_dir,
@@ -315,7 +316,7 @@ def model_evaluation_get_all(context, filters=None, sort_key=None, sort_dir=None
 
 
 def model_evaluation_get_all_by_project(context, project_id, filters=None,
-                             sort_key=None, sort_dir=None):
+                                        sort_key=None, sort_dir=None):
     """Returns all model_evaluations with given project ID."""
     return IMPL.model_evaluation_get_all_by_project(
         context, project_id, filters=filters,

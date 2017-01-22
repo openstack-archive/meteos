@@ -18,15 +18,10 @@ Drivers for learnings.
 
 """
 
-import six
-import time
-
 from oslo_config import cfg
 from oslo_log import log
 
-from meteos import exception
 from meteos.i18n import _, _LE
-from meteos import utils
 
 LOG = log.getLogger(__name__)
 

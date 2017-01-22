@@ -20,20 +20,16 @@
 Handles all requests relating to learnings.
 """
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import excutils
-from oslo_utils import strutils
-from oslo_utils import timeutils
 import six
 
 from meteos.common import constants
 from meteos.db import base
+from meteos.engine import rpcapi as engine_rpcapi
 from meteos import exception
 from meteos.i18n import _, _LE, _LI, _LW
 from meteos import policy
-from meteos.engine import rpcapi as engine_rpcapi
-from meteos import utils
 
 LOG = log.getLogger(__name__)
 
@@ -121,7 +117,7 @@ class API(base.Base):
                 "statuses": statuses}
             raise exception.InvalidLearning(reason=msg)
 
-        result = self.engine_rpcapi.delete_template(context, id)
+        self.engine_rpcapi.delete_template(context, id)
 
     def get_all_experiments(self, context, search_opts=None,
                             sort_key='created_at', sort_dir='desc'):
@@ -199,7 +195,7 @@ class API(base.Base):
                 "statuses": statuses}
             raise exception.InvalidLearning(reason=msg)
 
-        result = self.engine_rpcapi.delete_experiment(context, id)
+        self.engine_rpcapi.delete_experiment(context, id)
 
     def get_all_datasets(self, context, search_opts=None,
                          sort_key='created_at', sort_dir='desc'):
@@ -286,10 +282,10 @@ class API(base.Base):
                 "statuses": statuses}
             raise exception.InvalidLearning(reason=msg)
 
-        result = self.engine_rpcapi.delete_dataset(context,
-                                                   dataset['cluster_id'],
-                                                   dataset['job_id'],
-                                                   id)
+        self.engine_rpcapi.delete_dataset(context,
+                                          dataset['cluster_id'],
+                                          dataset['job_id'],
+                                          id)
 
     def _enable_load_model(self, context):
 
@@ -387,10 +383,10 @@ class API(base.Base):
                 "statuses": statuses}
             raise exception.InvalidLearning(reason=msg)
 
-        result = self.engine_rpcapi.delete_model(context,
-                                                 model['cluster_id'],
-                                                 model['job_id'],
-                                                 id)
+        self.engine_rpcapi.delete_model(context,
+                                        model['cluster_id'],
+                                        model['job_id'],
+                                        id)
 
     def load_model(self, context, id, dataset_format, model_type,
                    job_template_id, experiment_id, cluster_id):
@@ -445,20 +441,22 @@ class API(base.Base):
                 self.db.model_update(context, id, updates)
 
     def get_all_model_evaluations(self, context, search_opts=None,
-                          sort_key='created_at', sort_dir='desc'):
+                                  sort_key='created_at', sort_dir='desc'):
         policy.check_policy(context, 'model_evaluation', 'get_all')
 
         if search_opts is None:
             search_opts = {}
 
-        LOG.debug("Searching for model evaluations by: %s", six.text_type(search_opts))
+        LOG.debug("Searching for model evaluations by: %s",
+                  six.text_type(search_opts))
 
         project_id = context.project_id
 
-        model_evaluations = self.db.model_evaluation_get_all_by_project(context,
-                                                        project_id,
-                                                        sort_key=sort_key,
-                                                        sort_dir=sort_dir)
+        model_evaluations = self.db.model_evaluation_get_all_by_project(
+            context,
+            project_id,
+            sort_key=sort_key,
+            sort_dir=sort_dir)
 
         if search_opts:
             results = []
@@ -474,22 +472,23 @@ class API(base.Base):
         return rv
 
     def create_model_evaluation(self, context, name, source_dataset_url,
-                        model_id, model_type, dataset_format, template_id,
-                        job_template_id, experiment_id, cluster_id,
-                        swift_tenant, swift_username, swift_password):
+                                model_id, model_type, dataset_format,
+                                template_id, job_template_id, experiment_id,
+                                cluster_id, swift_tenant, swift_username,
+                                swift_password):
         """Create a Model Evaluation"""
         policy.check_policy(context, 'model_evaluation', 'create')
 
         model_evaluation = {'id': None,
-                    'display_name': name,
-                    'model_id': model_id,
-                    'model_type': model_type,
-                    'source_dataset_url': source_dataset_url,
-                    'dataset_format': dataset_format,
-                    'user_id': context.user_id,
-                    'project_id': context.project_id,
-                    'cluster_id': cluster_id
-                    }
+                            'display_name': name,
+                            'model_id': model_id,
+                            'model_type': model_type,
+                            'source_dataset_url': source_dataset_url,
+                            'dataset_format': dataset_format,
+                            'user_id': context.user_id,
+                            'project_id': context.project_id,
+                            'cluster_id': cluster_id
+                            }
 
         try:
             result = self.db.model_evaluation_create(context, model_evaluation)
@@ -505,7 +504,8 @@ class API(base.Base):
                                             result['id'],
                                             updates)
 
-            LOG.info(_LI("Accepted creation of model evaluation %s."), result['id'])
+            LOG.info(_LI("Accepted creation of model evaluation %s."),
+                     result['id'])
         except Exception:
             with excutils.save_and_reraise_exception():
                 self.db.model_evaluation_delete(context, result['id'])
@@ -530,10 +530,11 @@ class API(base.Base):
             raise exception.InvalidLearning(reason=msg)
 
         if model_evaluation.job_id:
-            self.engine_rpcapi.delete_model_evaluation(context,
-                                               model_evaluation['cluster_id'],
-                                               model_evaluation['job_id'],
-                                               id)
+            self.engine_rpcapi\
+                .delete_model_evaluation(context,
+                                         model_evaluation['cluster_id'],
+                                         model_evaluation['job_id'],
+                                         id)
         else:
             self.db.model_evaluation_delete(context, id)
 

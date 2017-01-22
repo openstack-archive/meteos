@@ -20,29 +20,16 @@
 :learning_driver: Used by :class:`LearningManager`.
 """
 
-import copy
-import datetime
-import functools
-
 from oslo_config import cfg
 from oslo_log import log
-from oslo_serialization import jsonutils
-from oslo_service import periodic_task
 from oslo_utils import excutils
 from oslo_utils import importutils
-from oslo_utils import strutils
 from oslo_utils import timeutils
-import six
 
 from meteos.common import constants
-from meteos import context
-from meteos import exception
+import meteos.engine.configuration
 from meteos.i18n import _, _LE, _LI, _LW
 from meteos import manager
-from meteos.engine import api
-import meteos.engine.configuration
-from meteos.engine import rpcapi as engine_rpcapi
-from meteos import utils
 
 LOG = log.getLogger(__name__)
 
@@ -86,10 +73,10 @@ class LearningManager(manager.Manager):
 
         if stderr:
             status = constants.STATUS_ERROR
-            LOG.error(_LI("Fail to create %s %s."), resource_name, id)
+            LOG.error(_LI("Fail to create %s."), id)
         else:
             status = constants.STATUS_AVAILABLE
-            LOG.info(_LI("%s %s created successfully."), resource_name, id)
+            LOG.info(_LI("%s created successfully."), id)
 
         updates = {
             'status': status,
@@ -124,7 +111,7 @@ class LearningManager(manager.Manager):
             response = self.driver.create_template(
                 context, request_spec)
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("template %s failed on creation."),
                           request_spec['id'])
@@ -150,7 +137,7 @@ class LearningManager(manager.Manager):
             template = self.db.template_get(context, id)
             self.driver.delete_template(context, template)
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Template %s failed on deletion."), id)
                 self.db.template_update(
@@ -177,7 +164,7 @@ class LearningManager(manager.Manager):
 
             experiment = request_spec
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Experiment %s failed on creation."),
                           request_spec['id'])
@@ -203,7 +190,7 @@ class LearningManager(manager.Manager):
             experiment = self.db.experiment_get(context, id)
             self.driver.delete_experiment(context, experiment['cluster_id'])
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Experiment %s failed on deletion."), id)
                 self.db.experiment_update(
@@ -228,7 +215,7 @@ class LearningManager(manager.Manager):
                 request_spec['template_id'],
                 request_spec['cluster_id'])
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Dataset %s failed on creation."),
                           request_spec['id'])
@@ -247,7 +234,7 @@ class LearningManager(manager.Manager):
         try:
             self.driver.delete_dataset(context, cluster_id, job_id, id)
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Dataset %s failed on deletion."), id)
                 self.db.dataset_update(
@@ -272,7 +259,7 @@ class LearningManager(manager.Manager):
                 request_spec['template_id'],
                 request_spec['cluster_id'])
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Model %s failed on creation."),
                           request_spec['id'])
@@ -291,7 +278,7 @@ class LearningManager(manager.Manager):
         try:
             self.driver.delete_model(context, cluster_id, job_id, id)
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Model %s failed on deletion."), id)
                 self.db.model_update(
@@ -314,7 +301,7 @@ class LearningManager(manager.Manager):
         try:
             self.driver.load_model(context, request_spec)
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Model %s failed on loading."),
                           request_spec['id'])
@@ -325,7 +312,7 @@ class LearningManager(manager.Manager):
 
         self.db.model_update(context,
                              request_spec['id'],
-                             {'status' : constants.STATUS_ACTIVE})
+                             {'status': constants.STATUS_ACTIVE})
 
     def unload_model(self, context, request_spec=None):
         """Unload a Model."""
@@ -338,7 +325,7 @@ class LearningManager(manager.Manager):
         try:
             self.driver.unload_model(context, request_spec)
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Model %s failed on unloading."),
                           request_spec['id'])
@@ -349,7 +336,7 @@ class LearningManager(manager.Manager):
 
         self.db.model_update(context,
                              request_spec['id'],
-                             {'status' : constants.STATUS_AVAILABLE})
+                             {'status': constants.STATUS_AVAILABLE})
 
     def create_model_evaluation(self, context, request_spec=None):
         """Create a Model Evaluation."""
@@ -366,7 +353,7 @@ class LearningManager(manager.Manager):
                 request_spec['template_id'],
                 request_spec['cluster_id'])
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Model Evaluation %s failed on creation."),
                           model_evaluation_id)
@@ -378,14 +365,18 @@ class LearningManager(manager.Manager):
         self._update_status(context, 'Model Evaluation', model_evaluation_id,
                             job_id, stdout, stderr)
 
-    def delete_model_evaluation(self, context, cluster_id=None, job_id=None, id=None):
+    def delete_model_evaluation(self, context, cluster_id=None,
+                                job_id=None, id=None):
         """Deletes a Model Evaluation."""
         context = context.elevated()
 
         try:
-            self.driver.delete_model_evaluation(context, cluster_id, job_id, id)
+            self.driver.delete_model_evaluation(context,
+                                                cluster_id,
+                                                job_id,
+                                                id)
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Model Evaluation %s failed on deletion."), id)
                 self.db.model_evaluation_update(
@@ -411,7 +402,7 @@ class LearningManager(manager.Manager):
                 request_spec['template_id'],
                 request_spec['cluster_id'])
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Learning %s failed on creation."),
                           learning_id)
@@ -432,9 +423,10 @@ class LearningManager(manager.Manager):
         LOG.debug("Create learning with request: %s", request_spec)
 
         try:
-            stdout, stderr = self.driver.create_online_learning(context, request_spec)
+            stdout, stderr = self.driver.create_online_learning(context,
+                                                                request_spec)
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Learning %s failed on creation."),
                           request_spec['id'])
@@ -453,7 +445,7 @@ class LearningManager(manager.Manager):
         try:
             self.driver.delete_learning(context, cluster_id, job_id, id)
 
-        except Exception as e:
+        except Exception:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Learning %s failed on deletion."), id)
                 self.db.learning_update(

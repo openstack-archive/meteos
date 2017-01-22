@@ -46,8 +46,6 @@ class ViewBuilder(common.ViewBuilder):
 
     def detail(self, request, experiment):
         """Detailed view of a single experiment."""
-        context = request.environ['meteos.context']
-
         experiment_dict = {
             'id': experiment.get('id'),
             'created_at': experiment.get('created_at'),

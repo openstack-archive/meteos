@@ -26,16 +26,16 @@ import oslo_policy.opts
 
 import meteos.api.common
 import meteos.api.middleware.auth
+import meteos.cluster.sahara
 import meteos.common.config
 import meteos.db.api
 import meteos.db.base
-import meteos.exception
-import meteos.service
 import meteos.engine.api
 import meteos.engine.driver
 import meteos.engine.drivers.generic
 import meteos.engine.manager
-import meteos.cluster.sahara
+import meteos.exception
+import meteos.service
 import meteos.wsgi
 
 

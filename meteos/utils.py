@@ -17,31 +17,22 @@
 
 """Utilities and helper functions."""
 
-import contextlib
 import errno
 import functools
 import inspect
 import os
 import pyclbr
-import random
-import re
-import shutil
-import socket
 import sys
-import tempfile
 import time
 
 from eventlet import pools
-import netaddr
 from oslo_concurrency import lockutils
 from oslo_concurrency import processutils
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import importutils
-from oslo_utils import netutils
 from oslo_utils import timeutils
 import paramiko
-import retrying
 import six
 
 from meteos.common import constants
@@ -250,7 +241,6 @@ def file_open(filename):
     except IOError as e:
         if e.errno != errno.ENOENT:
             raise
-        result = False
     else:
         data = fd.read()
         fd.close()

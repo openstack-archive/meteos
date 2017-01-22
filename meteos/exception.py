@@ -171,11 +171,6 @@ class MalformedRequestBody(MeteosException):
     message = _("Malformed message body: %(reason)s.")
 
 
-class NotAuthorized(MeteosException):
-    message = _("Not authorized.")
-    code = 403
-
-
 class AdminRequired(NotAuthorized):
     message = _("User does not have admin privileges.")
 

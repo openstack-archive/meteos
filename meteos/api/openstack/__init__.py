@@ -21,7 +21,6 @@ WSGI middleware for OpenStack API controllers.
 from oslo_log import log
 import routes
 
-from meteos.api.openstack import wsgi
 from meteos.i18n import _, _LW
 from meteos import wsgi as base_wsgi
 

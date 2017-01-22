@@ -48,8 +48,6 @@ class ViewBuilder(common.ViewBuilder):
 
     def detail(self, request, model):
         """Detailed view of a single model."""
-        context = request.environ['meteos.context']
-
         model_dict = {
             'id': model.get('id'),
             'created_at': model.get('created_at'),

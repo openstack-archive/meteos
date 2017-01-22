@@ -16,13 +16,7 @@
 
 """The experiments api."""
 
-import ast
-import re
-import string
-
 from oslo_log import log
-from oslo_utils import strutils
-from oslo_utils import uuidutils
 import six
 import webob
 from webob import exc

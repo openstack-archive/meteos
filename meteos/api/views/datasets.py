@@ -47,8 +47,6 @@ class ViewBuilder(common.ViewBuilder):
 
     def detail(self, request, dataset):
         """Detailed view of a single dataset."""
-        context = request.environ['meteos.context']
-
         dataset_dict = {
             'id': dataset.get('id'),
             'created_at': dataset.get('created_at'),

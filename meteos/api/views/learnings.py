@@ -49,8 +49,6 @@ class ViewBuilder(common.ViewBuilder):
 
     def detail(self, request, learning):
         """Detailed view of a single learning."""
-        context = request.environ['meteos.context']
-
         learning_dict = {
             'id': learning.get('id'),
             'created_at': learning.get('created_at'),

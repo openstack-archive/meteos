@@ -22,10 +22,9 @@ SQLAlchemy models for Meteos data.
 from oslo_config import cfg
 from oslo_db.sqlalchemy import models
 from oslo_log import log
-from sqlalchemy import Column, Integer, String, schema
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import orm
-from sqlalchemy import ForeignKey, DateTime, Boolean, Enum, Text
+from sqlalchemy import DateTime, Boolean, Text
 
 from meteos.common import constants
 

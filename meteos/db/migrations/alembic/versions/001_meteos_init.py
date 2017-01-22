@@ -26,8 +26,8 @@ down_revision = None
 
 from alembic import op
 from oslo_log import log
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Text
-from sqlalchemy import Integer, MetaData, String, Table, UniqueConstraint
+from sqlalchemy import Boolean, Column, DateTime, Text
+from sqlalchemy import Integer, MetaData, String, Table
 
 from meteos.i18n import _LE
 

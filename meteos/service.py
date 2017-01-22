@@ -225,7 +225,6 @@ class Service(service.Service):
     def report_state(self):
         """Update the state of this service in the datastore."""
         ctxt = context.get_admin_context()
-        zone = CONF.storage_availability_zone
         state_catalog = {}
         try:
             try:

@@ -19,7 +19,6 @@ import copy
 from oslo_config import cfg
 
 from meteos.api import openstack
-from meteos.api.openstack import api_version_request
 from meteos.api.openstack import wsgi
 from meteos.api.views import versions as views_versions
 

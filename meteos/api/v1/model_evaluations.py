@@ -16,13 +16,7 @@
 
 """The model_evaluations api."""
 
-import ast
-import re
-import string
-
 from oslo_log import log
-from oslo_utils import strutils
-from oslo_utils import uuidutils
 import six
 import webob
 from webob import exc
@@ -52,7 +46,8 @@ class ModelEvaluationController(wsgi.Controller, wsgi.AdminActionsMixin):
         context = req.environ['meteos.context']
 
         try:
-            model_evaluation = self.engine_api.get_model_evaluation(context, id)
+            model_evaluation = self.engine_api.get_model_evaluation(context,
+                                                                    id)
         except exception.NotFound:
             raise exc.HTTPNotFound()
 

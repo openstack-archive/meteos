@@ -48,8 +48,6 @@ class ViewBuilder(common.ViewBuilder):
 
     def detail(self, request, template):
         """Detailed view of a single template."""
-        context = request.environ['meteos.context']
-
         template_dict = {
             'id': template.get('id'),
             'created_at': template.get('created_at'),

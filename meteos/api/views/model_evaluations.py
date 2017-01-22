@@ -49,8 +49,6 @@ class ViewBuilder(common.ViewBuilder):
 
     def detail(self, request, model_evaluation):
         """Detailed view of a single model evaluation."""
-        context = request.environ['meteos.context']
-
         model_evaluation_dict = {
             'id': model_evaluation.get('id'),
             'name': model_evaluation.get('display_name'),
@@ -65,17 +63,19 @@ class ViewBuilder(common.ViewBuilder):
             'stderr': model_evaluation.get('stderr'),
         }
 
-        self.update_versioned_resource_dict(request, model_evaluation_dict, model_evaluation)
+        self.update_versioned_resource_dict(request,
+                                            model_evaluation_dict,
+                                            model_evaluation)
 
         return {'model_evaluation': model_evaluation_dict}
 
     def _list_view(self, func, request, model_evaluations):
         """Provide a view for a list of model evaluations."""
         model_evaluations_list = [func(request, model_evaluation)['model_evaluation']
-                          for model_evaluation in model_evaluations]
+                                  for model_evaluation in model_evaluations]
         model_evaluations_links = self._get_collection_links(request,
-                                                     model_evaluations,
-                                                     self._collection_name)
+                                                             model_evaluations,
+                                                             self._collection_name)
         model_evaluations_dict = dict(model_evaluations=model_evaluations_list)
 
         if model_evaluations_links:

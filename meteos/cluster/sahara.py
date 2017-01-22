@@ -18,20 +18,14 @@
 Handles all requests relating to volumes + sahara.
 """
 
-import copy
-import os
-
-from osc_lib import exceptions as sahara_exception
-from saharaclient import client as sahara_client
 from keystoneauth1 import loading as ks_loading
+from osc_lib import exceptions as sahara_exception
 from oslo_config import cfg
-import six
+from saharaclient import client as sahara_client
 
 from meteos.common import client_auth
 from meteos.common.config import core_opts
-import meteos.context as ctxt
 from meteos.db import base
-from meteos import exception
 from meteos.i18n import _
 
 SAHARA_GROUP = 'sahara'
