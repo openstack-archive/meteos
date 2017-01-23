@@ -19,3 +19,8 @@ Optionally, a git refspec may be provided as follows:
      enable_plugin meteos git://git.openstack.org/openstack/meteos <refspec>
 
 3. run ``stack.sh``
+
+For additional configuration information please see details in the `Meteos on
+DevStack`_ section of the Meteos wiki.
+
+.. _Meteos on DevStack: https://wiki.openstack.org/wiki/Meteos/Devstack
