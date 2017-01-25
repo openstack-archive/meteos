@@ -97,10 +97,10 @@ class SSHPool(pools.Pool):
                         timeout=self.conn_timeout)
             # Paramiko by default sets the socket timeout to 0.1 seconds,
             # ignoring what we set through the sshclient. This doesn't help for
-            # keeping long lived connections. Hence we have to bypass it, by
+            # keeping long lived connections. Hence, we have to bypass it, by
             # overriding it after the transport is initialized. We are setting
             # the sockettimeout to None and setting a keepalive packet so that,
-            # the server will keep the connection open. All that does is send
+            # the server will keep the connection open. All that does is sent
             # a keepalive packet every ssh_conn_timeout seconds.
             if self.conn_timeout:
                 transport = ssh.get_transport()
@@ -273,7 +273,7 @@ def walk_class_hierarchy(clazz, encountered=None):
     for subclass in clazz.__subclasses__():
         if subclass not in encountered:
             encountered.append(subclass)
-            # drill down to leaves first
+            # drill down to leave first
             for subsubclass in walk_class_hierarchy(subclass, encountered):
                 yield subsubclass
             yield subclass
