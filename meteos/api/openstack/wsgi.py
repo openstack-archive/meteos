@@ -716,7 +716,7 @@ class Resource(wsgi.Application):
                                        **action_args)
                 except exception.VersionNotFoundForAPIMethod:
                     # If an attached extension (@wsgi.extends) for the
-                    # method has no version match its not an error. We
+                    # method has no version match it is not an error. We
                     # just don't run the extends code
                     continue
                 except Fault as ex:

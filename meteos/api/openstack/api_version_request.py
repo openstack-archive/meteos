@@ -21,20 +21,20 @@ from meteos import exception
 from meteos.i18n import _
 from meteos import utils
 
-# Define the minimum and maximum version of the API across all of the
+# Define the minimum and maximum version of the API across all the
 # REST API. The format of the version is:
 # X.Y where:
 #
 # - X will only be changed if a significant backwards incompatible API
 # change is made which affects the API as whole. That is, something
-# that is only very very rarely incremented.
+# that is only very rarely incremented.
 #
 # - Y when you make any change to the API. Note that this includes
 # semantic changes which may not affect the input or output formats or
 # even originate in the API code layer. We are not distinguishing
 # between backwards compatible and backwards incompatible changes in
 # the versioning system. It must be made clear in the documentation as
-# to what is a backwards compatible change and what is a backwards
+# to what is a backward compatible change and what is a backward
 # incompatible one.
 
 #
@@ -49,7 +49,7 @@ REST_API_VERSION_HISTORY = """
 
 # The minimum and maximum versions of the API supported
 # The default api version request is defined to be the
-# the minimum version of the API supported.
+# minimum version of the API supported.
 _MIN_API_VERSION = "1.0"
 _MAX_API_VERSION = "1.0"
 DEFAULT_API_VERSION = _MIN_API_VERSION
