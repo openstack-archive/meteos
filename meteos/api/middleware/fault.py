@@ -55,8 +55,8 @@ class FaultWrapper(base_wsgi.Middleware):
         if headers:
             outer.headers = headers
         # NOTE(johannes): We leave the explanation empty here on
-        # purpose. It could possibly have sensitive information
-        # that should not be returned back to the user. See
+        # purpose. It could have sensitive information
+        # that should not be return back to the user. See
         # bugs 868360 and 874472
         # NOTE(eglynn): However, it would be over-conservative and
         # inconsistent with the EC2 API to hide every exception,

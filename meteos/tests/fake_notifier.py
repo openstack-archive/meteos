@@ -51,7 +51,7 @@ class FakeNotifier(object):
     def _notify(self, priority, ctxt, event_type, payload):
         payload = self._serializer.serialize_entity(ctxt, payload)
         # NOTE(sileht): simulate the kombu serializer
-        # this permit to raise an exception if something have not
+        # this permit to raising an exception if something have not
         # been serialized correctly
         jsonutils.to_primitive(payload)
         msg = dict(publisher_id=self.publisher_id,
