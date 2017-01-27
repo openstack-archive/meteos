@@ -418,6 +418,8 @@ def _experiment_get_all_with_filters(context, project_id=None, filters=None,
         _experiment_get_query(context).join()
     )
 
+    query = query.filter(models.Experiment.project_id == project_id)
+
     # Apply filters
     if not filters:
         filters = {}
@@ -524,6 +526,8 @@ def _template_get_all_with_filters(context, project_id=None, filters=None,
     query = (
         _template_get_query(context).join()
     )
+
+    query = query.filter(models.Template.project_id == project_id)
 
     # Apply filters
     if not filters:
@@ -632,6 +636,8 @@ def _dataset_get_all_with_filters(context, project_id=None, filters=None,
         _dataset_get_query(context).join()
     )
 
+    query = query.filter(models.Dataset.project_id == project_id)
+
     # Apply filters
     if not filters:
         filters = {}
@@ -737,6 +743,8 @@ def _model_get_all_with_filters(context, project_id=None, filters=None,
     query = (
         _model_get_query(context).join()
     )
+
+    query = query.filter(models.Model.project_id == project_id)
 
     # Apply filters
     if not filters:
@@ -850,6 +858,8 @@ def _model_evaluation_get_all_with_filters(context, project_id=None,
         _model_evaluation_get_query(context).join()
     )
 
+    query = query.filter(models.Model_Evaluation.project_id == project_id)
+
     # Apply filters
     if not filters:
         filters = {}
@@ -958,6 +968,8 @@ def _learning_get_all_with_filters(context, project_id=None, filters=None,
     query = (
         _learning_get_query(context).join()
     )
+
+    query = query.filter(models.Learning.project_id == project_id)
 
     # Apply filters
     if not filters:
