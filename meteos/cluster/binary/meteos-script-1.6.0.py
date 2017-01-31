@@ -113,9 +113,9 @@ class KMeansModelController(ModelController):
 
     def create_model(self, data, params):
 
-        numClasses = params.get('numClasses', 2)
-        numIterations = params.get('numIterations', 10)
-        runs = params.get('runs', 10)
+        numClasses = int(params.get('numClasses', 2))
+        numIterations = int(params.get('numIterations', 10))
+        runs = int(params.get('runs', 10))
         mode = params.get('mode', 'random')
 
         parsedData = data.map(
@@ -147,8 +147,8 @@ class RecommendationController(ModelController):
     def create_model(self, data, params):
 
         # Build the recommendation model using Alternating Least Squares
-        rank = params.get('rank', 10)
-        numIterations = params.get('numIterations', 10)
+        rank = int(params.get('rank', 10))
+        numIterations = int(params.get('numIterations', 10))
 
         ratings = self._create_ratings(data)
 
@@ -190,8 +190,8 @@ class LinearRegressionModelController(ModelController):
 
     def create_model(self, data, params):
 
-        iterations = params.get('numIterations', 10)
-        step = params.get('step', 0.00000001)
+        iterations = int(params.get('numIterations', 10))
+        step = float(params.get('step', 0.00000001))
 
         points = data.map(self.parsePoint)
         return LinearRegressionWithSGD.train(points,
@@ -200,8 +200,8 @@ class LinearRegressionModelController(ModelController):
 
     def create_model_libsvm(self, data, params):
 
-        iterations = params.get('numIterations', 10)
-        step = params.get('step', 0.00000001)
+        iterations = int(params.get('numIterations', 10))
+        step = float(params.get('step', 0.00000001))
 
         return LinearRegressionWithSGD.train(data,
                                              iterations=iterations,
@@ -238,14 +238,14 @@ class LogisticRegressionModelController(ModelController):
 
     def create_model(self, data, params):
 
-        numIterations = params.get('numIterations', 10)
+        numIterations = int(params.get('numIterations', 10))
 
         points = data.map(self.parsePoint)
         return LogisticRegressionWithSGD.train(points, numIterations)
 
     def create_model_libsvm(self, data, params):
 
-        numIterations = params.get('numIterations', 10)
+        numIterations = int(params.get('numIterations', 10))
 
         return LogisticRegressionWithSGD.train(data, numIterations)
 
@@ -298,8 +298,8 @@ class DecisionTreeModelController(ModelController):
     def create_model_libsvm(self, data, params):
 
         impurity = params.get('impurity', 'variance')
-        maxDepth = params.get('maxDepth', 5)
-        maxBins = params.get('maxBins', 32)
+        maxDepth = int(params.get('maxDepth', 5))
+        maxBins = int(params.get('maxBins', 32))
 
         return DecisionTree.trainRegressor(data,
                                            categoricalFeaturesInfo={},
@@ -337,9 +337,9 @@ class Word2VecModelController(ModelController):
 
     def create_model(self, data, params):
 
-        learningRate = params.get('learningRate', 0.025)
-        numIterations = params.get('numIterations', 10)
-        minCount = params.get('minCount', 5)
+        learningRate = float(params.get('learningRate', 0.025))
+        numIterations = int(params.get('numIterations', 10))
+        minCount = int(params.get('minCount', 5))
 
         word2vec = Word2Vec()
         word2vec.setLearningRate(learningRate)
@@ -376,9 +376,9 @@ class FPGrowthModelController(ModelController):
 
     def create_model(self, data, params):
 
-        minSupport = params.get('minSupport', 0.2)
-        numPartitions = params.get('numPartitions', 10)
-        limits = params.get('limits', 10)
+        minSupport = float(params.get('minSupport', 0.2))
+        numPartitions = int(params.get('numPartitions', 10))
+        limits = int(params.get('limits', 10))
 
         transactions = data.map(lambda line: line.strip().split(' '))
 

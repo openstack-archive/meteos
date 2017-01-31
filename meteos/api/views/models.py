@@ -41,6 +41,7 @@ class ViewBuilder(common.ViewBuilder):
                 'description': model.get('display_description'),
                 'type': model.get('model_type'),
                 'status': model.get('status'),
+                'stdout': model.get('stdout'),
                 'created_at': model.get('created_at'),
                 'links': self._get_links(request, model['id'])
             }
