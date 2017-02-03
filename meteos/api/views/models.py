@@ -40,6 +40,7 @@ class ViewBuilder(common.ViewBuilder):
                 'name': model.get('display_name'),
                 'description': model.get('display_description'),
                 'type': model.get('model_type'),
+                'params': model.get('model_params'),
                 'status': model.get('status'),
                 'stdout': model.get('stdout'),
                 'created_at': model.get('created_at'),

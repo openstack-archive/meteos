@@ -39,7 +39,9 @@ class ViewBuilder(common.ViewBuilder):
                 'name': template.get('display_name'),
                 'description': template.get('display_description'),
                 'master_nodes': template.get('master_nodes_num'),
+                'master_flavor': template.get('master_flavor_id'),
                 'worker_nodes': template.get('worker_nodes_num'),
+                'worker_flavor': template.get('worker_flavor_id'),
                 'spark_version': template.get('spark_version'),
                 'status': template.get('status'),
                 'links': self._get_links(request, template['id'])

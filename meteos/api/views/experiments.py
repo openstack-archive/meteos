@@ -39,6 +39,8 @@ class ViewBuilder(common.ViewBuilder):
                 'name': experiment.get('display_name'),
                 'description': experiment.get('display_description'),
                 'status': experiment.get('status'),
+                'key_name': experiment.get('key_name'),
+                'management_network': experiment.get('neutron_management_network'),
                 'created_at': experiment.get('created_at'),
                 'links': self._get_links(request, experiment['id'])
             }
