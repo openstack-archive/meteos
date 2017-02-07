@@ -41,6 +41,7 @@ Developer Docs
 .. toctree::
    :maxdepth: 1
 
+   architecture
    devref/index
    man/index
    api/autoindex
