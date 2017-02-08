@@ -521,6 +521,24 @@ class MeteosSparkController(object):
         exec('self.data = self.data' + cmd)
         self.save_data()
 
+    def split_dataset(self):
+
+        self.load_data()
+
+        percent_train = self.job_args['dataset']['percent_train']
+        percent_test = self.job_args['dataset']['percent_test']
+
+        # Split the data into training and test sets
+        (trainData, testData) = self.data.randomSplit([float(percent_train),
+                                                       float(percent_test)])
+        self.data = trainData
+        self.save_data()
+
+        # save testData
+        testData.collect()
+        datapath = 'data-' + self.job_args['dataset']['test_dataset']['id']
+        testData.saveAsTextFile(datapath)
+
     def create_model(self):
 
         self.load_data()

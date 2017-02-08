@@ -128,6 +128,12 @@ class DatasetController(wsgi.Controller, wsgi.AdminActionsMixin):
         swift_tenant = dataset.get('swift_tenant')
         swift_username = dataset.get('swift_username')
         swift_password = dataset.get('swift_password')
+        percent_train = dataset.get('percent_train', '0.7')
+        percent_test = dataset.get('percent_test', '0.3')
+
+        if (method == 'split'
+                and not float(percent_train) + float(percent_test) == 1.0):
+            raise exc.HTTPUnprocessableEntity()
 
         new_dataset = self.engine_api.create_dataset(context,
                                                      display_name,
@@ -141,7 +147,9 @@ class DatasetController(wsgi.Controller, wsgi.AdminActionsMixin):
                                                      experiment.cluster_id,
                                                      swift_tenant,
                                                      swift_username,
-                                                     swift_password)
+                                                     swift_password,
+                                                     percent_train,
+                                                     percent_test)
 
         return self._view_builder.detail(req, new_dataset)
 

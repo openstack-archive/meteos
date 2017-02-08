@@ -20,6 +20,7 @@
 Handles all requests relating to learnings.
 """
 
+import copy
 from oslo_log import log
 from oslo_utils import excutils
 import six
@@ -230,7 +231,8 @@ class API(base.Base):
     def create_dataset(self, context, name, description, method,
                        source_dataset_url, params, template_id,
                        job_template_id, experiment_id, cluster_id,
-                       swift_tenant, swift_username, swift_password):
+                       swift_tenant, swift_username, swift_password,
+                       percent_train, percent_test):
         """Create a Dataset"""
         policy.check_policy(context, 'dataset', 'create')
 
@@ -247,6 +249,24 @@ class API(base.Base):
                    'cluster_id': cluster_id
                    }
 
+        test_dataset = {}
+
+        if method == 'split':
+            train_data_name = name + '_train_' + percent_train
+            test_data_name = name + '_test_' + percent_test
+
+            tmp_dataset = copy.deepcopy(dataset)
+
+            dataset['display_name'] = train_data_name
+
+            tmp_dataset['display_name'] = test_data_name
+
+            try:
+                test_dataset = self.db.dataset_create(context, tmp_dataset)
+            except Exception:
+                with excutils.save_and_reraise_exception():
+                    self.db.dataset_delete(context, test_dataset['id'])
+
         try:
             result = self.db.dataset_create(context, dataset)
             result['template_id'] = template_id
@@ -254,11 +274,20 @@ class API(base.Base):
             result['swift_tenant'] = swift_tenant
             result['swift_username'] = swift_username
             result['swift_password'] = swift_password
+            result['test_dataset'] = test_dataset
+            result['percent_train'] = percent_train
+            result['percent_test'] = percent_test
+
             self.engine_rpcapi.create_dataset(context, result)
             updates = {'status': constants.STATUS_CREATING}
-
             LOG.info(_LI("Accepted parsing of dataset %s."), result['id'])
             self.db.dataset_update(context, result['id'], updates)
+
+            if result['test_dataset']:
+                self.db.dataset_update(context,
+                                       result['test_dataset']['id'],
+                                       updates)
+
         except Exception:
             with excutils.save_and_reraise_exception():
                 self.db.dataset_delete(context, result['id'])
