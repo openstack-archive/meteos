@@ -162,7 +162,10 @@ class GenericLearningDriver(driver.LearningDriver):
         job_args['source_dataset_url'] = request_specs\
             .get('source_dataset_url')
         job_args['dataset_format'] = request_specs.get('dataset_format')
-        dataset_args = {'params': request_specs.get('params')}
+        dataset_args = {'params': request_specs.get('params'),
+                        'test_dataset': request_specs.get('test_dataset'),
+                        'percent_train': request_specs.get('percent_train'),
+                        'percent_test': request_specs.get('percent_test')}
         job_args['dataset'] = dataset_args
 
         # Set parameters of Swift

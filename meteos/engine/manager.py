@@ -227,6 +227,14 @@ class LearningManager(manager.Manager):
         self._update_status(context, 'DataSet', request_spec['id'],
                             job_id, stdout, stderr)
 
+        if request_spec['test_dataset']:
+            self._update_status(context,
+                                'DataSet',
+                                request_spec['test_dataset']['id'],
+                                job_id,
+                                None,
+                                stderr)
+
     def delete_dataset(self, context, cluster_id=None, job_id=None, id=None):
         """Deletes a Dataset."""
         context = context.elevated()
