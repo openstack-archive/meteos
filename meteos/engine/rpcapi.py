@@ -100,11 +100,12 @@ class LearningAPI(object):
         return self.cast(context, self.make_msg('create_model',
                                                 request_spec=request_spec_p))
 
-    def delete_model(self, context, cluster_id, job_id, id):
+    def delete_model(self, context, cluster_id, job_id, id, recreate):
         return self.call(context, self.make_msg('delete_model',
                                                 cluster_id=cluster_id,
                                                 job_id=job_id,
-                                                id=id))
+                                                id=id,
+                                                recreate=recreate))
 
     def load_model(self, context, request_spec):
         request_spec_p = jsonutils.to_primitive(request_spec)
