@@ -279,7 +279,8 @@ class LearningManager(manager.Manager):
         self._update_status(context, 'Model', request_spec['id'],
                             job_id, stdout, stderr)
 
-    def delete_model(self, context, cluster_id=None, job_id=None, id=None):
+    def delete_model(self, context, cluster_id=None, job_id=None, id=None,
+                     recreate=False):
         """Deletes a Model."""
         context = context.elevated()
 
@@ -295,7 +296,9 @@ class LearningManager(manager.Manager):
                 )
 
         LOG.info(_LI("Model %s deleted successfully."), id)
-        self.db.model_delete(context, id)
+
+        if not recreate:
+            self.db.model_delete(context, id)
 
     def load_model(self, context, request_spec=None):
         """Load a Model."""

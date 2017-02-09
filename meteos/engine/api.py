@@ -398,7 +398,44 @@ class API(base.Base):
 
         return model
 
-    def delete_model(self, context, id, force=False):
+    def recreate_model(self, id, context, source_dataset_url, dataset_format,
+                       model_type, model_params, template_id,
+                       job_template_id, experiment_id, cluster_id,
+                       swift_tenant, swift_username, swift_password):
+        """Recreate a Model"""
+        policy.check_policy(context, 'model', 'recreate')
+
+        model = {'source_dataset_url': source_dataset_url,
+                 'dataset_format': dataset_format,
+                 'model_type': model_type,
+                 'model_params': model_params,
+                 'experiment_id': experiment_id,
+                 'cluster_id': cluster_id,
+                 'status': constants.STATUS_RECREATING
+                 }
+
+        try:
+            self.delete_model(context, id, recreate=True)
+            self.db.model_update(context, id, model)
+            model['id'] = id
+            model['job_template_id'] = job_template_id
+            model['template_id'] = template_id
+            model['swift_tenant'] = swift_tenant
+            model['swift_username'] = swift_username
+            model['swift_password'] = swift_password
+            self.engine_rpcapi.create_model(context, model)
+            LOG.info(_LI("Accepted recreation of model %s."), id)
+
+        except Exception:
+            with excutils.save_and_reraise_exception():
+                self.db.model_delete(context, id)
+
+        # Retrieve the learning with instance details
+        model = self.db.model_get(context, id)
+
+        return model
+
+    def delete_model(self, context, id, force=False, recreate=False):
         """Delete model."""
 
         policy.check_policy(context, 'model', 'delete')
@@ -415,7 +452,8 @@ class API(base.Base):
         self.engine_rpcapi.delete_model(context,
                                         model['cluster_id'],
                                         model['job_id'],
-                                        id)
+                                        id,
+                                        recreate)
 
     def load_model(self, context, id, dataset_format, model_type,
                    job_template_id, experiment_id, cluster_id):
