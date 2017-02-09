@@ -1,27 +1,41 @@
+========================
+Team and repository tags
+========================
+
+.. image:: http://governance.openstack.org/badges/mistral.svg
+    :target: http://governance.openstack.org/reference/tags/index.html
+
 ======
 Meteos
 ======
+
+.. image:: https://img.shields.io/pypi/v/meteos.svg
+    :target: https://pypi.python.org/pypi/meteos/
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/dm/meteos.svg
+    :target: https://pypi.python.org/pypi/meteos/
+    :alt: Downloads
 
 You have come across an OpenStack Machine Learning service.  It has
 identified itself as "Meteos."  It was abstracted from the Manila
 project.
 
-* Wiki: https://wiki.openstack.org/Meteos
-* Developer docs: http://docs.openstack.org/developer/meteos
+Project Resources
+-----------------
 
-Getting Started
----------------
+* `Meteos Official Documentation <http://docs.openstack.org/developer/meteos/>`_
 
-If you'd like to run from the master branch, you can clone the git repo:
+* Project status, bugs, and blueprints are tracked on
+  `Launchpad <https://launchpad.net/meteos/>`_
 
-    git clone https://github.com/openstack/meteos.git
+* Additional resources are linked from the project
+  `Wiki <https://wiki.openstack.org/wiki/Meteos/>`_ page
 
-For developer information please see
-`HACKING.rst <https://github.com/openstack/meteos/blob/master/HACKING.rst>`_
+* Apache License Version 2.0 http://www.apache.org/licenses/LICENSE-2.0
 
-You can raise bugs here http://bugs.launchpad.net/meteos
+* `Source Code <https://github.com/openstack/meteos/>`_
 
-Python client
--------------
+* For developer information please see `HACKING.rst <https://github.com/openstack/meteos/blob/master/HACKING.rst>`_
 
-https://github.com/openstack/python-meteosclient.git
+* `Python Client <https://github.com/openstack/python-meteosclient.git>`_
