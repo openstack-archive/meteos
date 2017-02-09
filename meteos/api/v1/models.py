@@ -84,6 +84,48 @@ class ModelMixin(object):
 
         return {'model': {'id': id}}
 
+    def _recreate(self, req, id, body):
+        """Recreate model with new Dataset"""
+        context = req.environ['meteos.context']
+
+        if not self.is_valid_body(body, 'os-recreate'):
+            raise exc.HTTPUnprocessableEntity()
+
+        b_model = body['os-recreate']
+
+        LOG.debug("Recreate model with request: %s", b_model)
+
+        try:
+            model = self.engine_api.get_model(context, id)
+            experiment = self.engine_api.get_experiment(
+                context, model.experiment_id)
+            template = self.engine_api.get_template(
+                context, experiment.template_id)
+        except exception.NotFound:
+            raise exc.HTTPNotFound()
+
+        source_dataset_url = b_model.get('source_dataset_url')
+        dataset_format = b_model.get('dataset_format', 'csv')
+        swift_tenant = b_model.get('swift_tenant')
+        swift_username = b_model.get('swift_username')
+        swift_password = b_model.get('swift_password')
+
+        self.engine_api.recreate_model(id,
+                                       context,
+                                       source_dataset_url,
+                                       dataset_format,
+                                       model.model_type,
+                                       model.model_params,
+                                       template.id,
+                                       template.job_template_id,
+                                       experiment.id,
+                                       experiment.cluster_id,
+                                       swift_tenant,
+                                       swift_username,
+                                       swift_password)
+
+        return {'model': {'id': id}}
+
 
 class ModelController(wsgi.Controller, ModelMixin, wsgi.AdminActionsMixin):
 
@@ -210,6 +252,11 @@ class ModelController(wsgi.Controller, ModelMixin, wsgi.AdminActionsMixin):
     def unload(self, req, id, body):
         """Unload model."""
         return self._unload(req, id, body)
+
+    @wsgi.action('os-recreate')
+    def recreate(self, req, id, body):
+        """Recreate model."""
+        return self._recreate(req, id, body)
 
 
 def create_resource():

@@ -15,6 +15,7 @@
 
 STATUS_NEW = 'new'
 STATUS_CREATING = 'creating'
+STATUS_RECREATING = 'recreating'
 STATUS_DEACTIVATING = 'deactivating'
 STATUS_DELETING = 'deleting'
 STATUS_DELETED = 'deleted'
