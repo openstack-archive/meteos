@@ -353,3 +353,11 @@ def wait_for_access_update(context, db, learning_instance,
             raise exception.LearningMigrationFailed(reason=msg)
         else:
             time.sleep(tries ** 2)
+
+
+def is_valid_status(resource_name, status, valid_statuses):
+    if status not in valid_statuses:
+        msg = _("%(resource_name)s status must be %(valid_statuses)s") % {
+            "resource_name": resource_name,
+            "valid_statuses": valid_statuses}
+        raise exception.InvalidStatus(reason=msg)

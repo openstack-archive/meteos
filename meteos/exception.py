@@ -148,6 +148,10 @@ class InvalidLearning(Invalid):
     message = _("Invalid learning: %(reason)s.")
 
 
+class InvalidStatus(Invalid):
+    message = _("Invalid Status: %(reason)s.")
+
+
 class NotAuthorized(MeteosException):
     message = _("Not authorized.")
     code = 403
