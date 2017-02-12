@@ -24,9 +24,11 @@ from webob import exc
 from meteos.api import common
 from meteos.api.openstack import wsgi
 from meteos.api.views import datasets as dataset_views
+from meteos.common import constants
 from meteos import exception
 from meteos.i18n import _, _LI
 from meteos import engine
+from meteos import utils
 
 LOG = log.getLogger(__name__)
 
@@ -114,10 +116,15 @@ class DatasetController(wsgi.Controller, wsgi.AdminActionsMixin):
         try:
             experiment = self.engine_api.get_experiment(
                 context, dataset['experiment_id'])
+            utils.is_valid_status(experiment.__class__.__name__,
+                                  experiment.status,
+                                  constants.STATUS_AVAILABLE)
             template = self.engine_api.get_template(
                 context, experiment.template_id)
         except exception.NotFound:
             raise exc.HTTPNotFound()
+        except exception.InvalidStatus:
+            raise
 
         display_name = dataset.get('display_name')
         display_description = dataset.get('display_description')

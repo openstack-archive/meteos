@@ -31,9 +31,12 @@ from meteos.engine import rpcapi as engine_rpcapi
 from meteos import exception
 from meteos.i18n import _, _LE, _LI, _LW
 from meteos import policy
+from meteos import utils
 
+DELETE_VALID_STATUSES = (constants.STATUS_AVAILABLE,
+                         constants.STATUS_ERROR,
+                         constants.STATUS_INACTIVE)
 LOG = log.getLogger(__name__)
-
 
 class API(base.Base):
 
@@ -111,12 +114,9 @@ class API(base.Base):
 
         template = self.db.template_get(context, id)
 
-        statuses = (constants.STATUS_AVAILABLE, constants.STATUS_ERROR,
-                    constants.STATUS_INACTIVE)
-        if not (force or template['status'] in statuses):
-            msg = _("Learning status must be one of %(statuses)s") % {
-                "statuses": statuses}
-            raise exception.InvalidLearning(reason=msg)
+        utils.is_valid_status(template.__class__.__name__,
+                              template['status'],
+                              DELETE_VALID_STATUSES)
 
         self.engine_rpcapi.delete_template(context, id)
 
@@ -189,12 +189,9 @@ class API(base.Base):
 
         experiment = self.db.experiment_get(context, id)
 
-        statuses = (constants.STATUS_AVAILABLE, constants.STATUS_ERROR,
-                    constants.STATUS_INACTIVE)
-        if not (force or experiment['status'] in statuses):
-            msg = _("Learning status must be one of %(statuses)s") % {
-                "statuses": statuses}
-            raise exception.InvalidLearning(reason=msg)
+        utils.is_valid_status(experiment.__class__.__name__,
+                              experiment['status'],
+                              DELETE_VALID_STATUSES)
 
         self.engine_rpcapi.delete_experiment(context, id)
 
@@ -304,12 +301,9 @@ class API(base.Base):
 
         dataset = self.db.dataset_get(context, id)
 
-        statuses = (constants.STATUS_AVAILABLE, constants.STATUS_ERROR,
-                    constants.STATUS_INACTIVE)
-        if not (force or dataset['status'] in statuses):
-            msg = _("Learning status must be one of %(statuses)s") % {
-                "statuses": statuses}
-            raise exception.InvalidLearning(reason=msg)
+        utils.is_valid_status(dataset.__class__.__name__,
+                              dataset['status'],
+                              DELETE_VALID_STATUSES)
 
         self.engine_rpcapi.delete_dataset(context,
                                           dataset['cluster_id'],
@@ -442,12 +436,9 @@ class API(base.Base):
 
         model = self.db.model_get(context, id)
 
-        statuses = (constants.STATUS_AVAILABLE, constants.STATUS_ERROR,
-                    constants.STATUS_INACTIVE)
-        if not (force or model['status'] in statuses):
-            msg = _("Learning status must be one of %(statuses)s") % {
-                "statuses": statuses}
-            raise exception.InvalidLearning(reason=msg)
+        utils.is_valid_status(model.__class__.__name__,
+                              model['status'],
+                              DELETE_VALID_STATUSES)
 
         self.engine_rpcapi.delete_model(context,
                                         model['cluster_id'],
@@ -589,12 +580,9 @@ class API(base.Base):
 
         model_evaluation = self.db.model_evaluation_get(context, id)
 
-        statuses = (constants.STATUS_AVAILABLE, constants.STATUS_ERROR,
-                    constants.STATUS_INACTIVE)
-        if not (force or model_evaluation['status'] in statuses):
-            msg = _("Model Evaluation status must be one of %(statuses)s") % {
-                "statuses": statuses}
-            raise exception.InvalidLearning(reason=msg)
+        utils.is_valid_status(model_evaluation.__class__.__name__,
+                              model_evaluation['status'],
+                              DELETE_VALID_STATUSES)
 
         if model_evaluation.job_id:
             self.engine_rpcapi\
@@ -691,12 +679,9 @@ class API(base.Base):
 
         learning = self.db.learning_get(context, id)
 
-        statuses = (constants.STATUS_AVAILABLE, constants.STATUS_ERROR,
-                    constants.STATUS_INACTIVE)
-        if not (force or learning['status'] in statuses):
-            msg = _("Learning status must be one of %(statuses)s") % {
-                "statuses": statuses}
-            raise exception.InvalidLearning(reason=msg)
+        utils.is_valid_status(learning.__class__.__name__,
+                              learning['status'],
+                              DELETE_VALID_STATUSES)
 
         if learning.job_id:
             self.engine_rpcapi.delete_learning(context,

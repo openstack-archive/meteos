@@ -24,9 +24,11 @@ from webob import exc
 from meteos.api import common
 from meteos.api.openstack import wsgi
 from meteos.api.views import learnings as learning_views
+from meteos.common import constants
 from meteos import exception
 from meteos.i18n import _, _LI
 from meteos import engine
+from meteos import utils
 
 LOG = log.getLogger(__name__)
 
@@ -119,14 +121,23 @@ class LearningController(wsgi.Controller, wsgi.AdminActionsMixin):
 
         try:
             model = self.engine_api.get_model(context, model_id)
+            utils.is_valid_status(model.__class__.__name__,
+                                  model.status,
+                                  (constants.STATUS_AVAILABLE,
+                                   constants.STATUS_ACTIVE))
             experiment = self.engine_api.get_experiment(
                 context,
                 model.experiment_id)
+            utils.is_valid_status(experiment.__class__.__name__,
+                                  experiment.status,
+                                  constants.STATUS_AVAILABLE)
             template = self.engine_api.get_template(
                 context,
                 experiment.template_id)
         except exception.NotFound:
             raise exc.HTTPNotFound()
+        except exception.InvalidStatus:
+            raise
 
         new_learning = self.engine_api.create_learning(
             context,
