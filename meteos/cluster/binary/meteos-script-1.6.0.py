@@ -43,6 +43,8 @@ from pyspark import SparkContext
 
 from pyspark.mllib.classification import LogisticRegressionModel
 from pyspark.mllib.classification import LogisticRegressionWithSGD
+from pyspark.mllib.classification import NaiveBayes
+from pyspark.mllib.classification import NaiveBayesModel
 from pyspark.mllib.clustering import KMeans
 from pyspark.mllib.clustering import KMeansModel
 from pyspark.mllib.evaluation import BinaryClassificationMetrics
@@ -271,6 +273,37 @@ class LogisticRegressionModelController(ModelController):
         return self.predict(model, params)
 
 
+class NaiveBayesModelController(ModelController):
+
+    def __init__(self):
+        super(NaiveBayesModelController, self).__init__()
+
+    def create_model(self, data, params):
+
+        lambda_ = float(params.get('lambda', 1.0))
+
+        points = data.map(self.parsePoint)
+        return NaiveBayes.train(points, lambda_)
+
+    def evaluate_model(self, context, model, data):
+
+        predictionAndLabels = data.map(self.parsePoint)\
+                                  .map(lambda lp: (float(model.predict(lp.features)), lp.label))
+
+        metrics = BinaryClassificationMetrics(predictionAndLabels)
+
+        result = "{}: {}".format("Area under PR", metrics.areaUnderPR) + os.linesep\
+               + "{}: {}".format("Area under ROC", metrics.areaUnderROC)
+
+        return result
+
+    def load_model(self, context, path):
+        return NaiveBayesModel.load(context, path)
+
+    def predict(self, model, params):
+        return model.predict(params.split(','))
+
+
 class DecisionTreeModelController(ModelController):
 
     def __init__(self):
@@ -429,6 +462,8 @@ class MeteosSparkController(object):
             self.controller = Word2VecModelController()
         elif model_type == 'FPGrowth':
             self.controller = FPGrowthModelController()
+        elif model_type == 'NaiveBayes':
+            self.controller = NaiveBayesModelController()
 
     def save_data(self, collect=True):
 
