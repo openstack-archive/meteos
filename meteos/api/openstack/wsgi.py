@@ -51,6 +51,7 @@ VER_METHOD_ATTR = 'versioned_methods'
 API_VERSION_REQUEST_HEADER = 'X-OpenStack-Meteos-API-Version'
 EXPERIMENTAL_API_REQUEST_HEADER = 'X-OpenStack-Meteos-API-Experimental'
 
+DEFAULT_API_VERSION = "1.0"
 V1_SCRIPT_NAME = '/v1'
 
 
