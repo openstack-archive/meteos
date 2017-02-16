@@ -23,7 +23,6 @@ inline callbacks.
 
 import os
 import shutil
-import uuid
 
 import fixtures
 import mock
@@ -41,6 +40,7 @@ from meteos import rpc
 from meteos import service
 from meteos.tests import conf_fixture
 from meteos.tests import fake_notifier
+from oslo_utils import uuidutils
 
 test_opts = [
     cfg.StrOpt('sqlite_clean_db',
@@ -177,7 +177,7 @@ class TestCase(base_test.BaseTestCase):
             CONF.set_override(k, v, enforce_type=True)
 
     def start_service(self, name, host=None, **kwargs):
-        host = host and host or uuid.uuid4().hex
+        host = host and host or uuid.uuidutils.generate_uuid().hex
         kwargs.setdefault('host', host)
         kwargs.setdefault('binary', 'meteos-%s' % name)
         svc = service.Service.create(**kwargs)
