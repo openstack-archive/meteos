@@ -164,7 +164,7 @@ class Model(BASE, MeteosBase):
     display_description = Column(String(255))
 
     model_type = Column(String(255))
-    model_params = Column(String(255))
+    model_params = Column(Text)
 
     status = Column(String(255))
     launched_at = Column(DateTime)

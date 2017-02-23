@@ -161,7 +161,7 @@ def upgrade():
         Column('display_name', String(length=255)),
         Column('display_description', String(length=255)),
         Column('model_type', String(length=255)),
-        Column('model_params', String(length=255)),
+        Column('model_params', Text),
         Column('stdout', Text),
         Column('stderr', Text),
         mysql_engine='InnoDB',
