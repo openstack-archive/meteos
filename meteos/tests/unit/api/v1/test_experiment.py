@@ -30,6 +30,7 @@ fake_experiment = {'experiment': {
     'status': 'creating',
     'name': 'test experiment',
     'description': 'test experiment',
+    'template_id': '437092518172770c549dabafaf9f81e3766719ce',
     'user_id': '085058bfb20429e669c0e92b599a96d269032f1f',
     'project_id': 'b462a3b8cd0ccbf374dd140315ec1c431a8546be',
     'key_name': 'key1',
@@ -41,6 +42,7 @@ result = {'experiment': {
     'status': 'creating',
     'display_name': 'test experiment',
     'display_description': 'test experiment',
+    'template_id': '437092518172770c549dabafaf9f81e3766719ce',
     'user_id': '085058bfb20429e669c0e92b599a96d269032f1f',
     'project_id': 'b462a3b8cd0ccbf374dd140315ec1c431a8546be',
     'key_name': 'key1',
@@ -52,6 +54,7 @@ fakeexperiment_list = [{
     'status': 'creating',
     'display_name': 'second test experiment',
     'display_description': 'second test experiment',
+    'template_id': 'ec49b237367b5d4b4337abee52260f1169f9b76e',
     'user_id': 'adcf0c50cd87c68abef7c3bb4785a07d3545be5d',
     'project_id': '7a1e6f042f00ac94ec30bb8c6bf5d05b34623832',
     'key_name': 'key2',
@@ -85,6 +88,7 @@ expect_result = {
                 }
             ],
             'name': 'second test experiment',
+            'template_id': 'ec49b237367b5d4b4337abee52260f1169f9b76e',
             'user_id': 'adcf0c50cd87c68abef7c3bb4785a07d3545be5d',
             'project_id': '7a1e6f042f00ac94ec30bb8c6bf5d05b34623832',
             'management_network': 'fada8863-56b7-461b-b647-9334500c25df',
@@ -106,6 +110,7 @@ expect_result = {
                 }
             ],
             'name': None,
+            'template_id': '437092518172770c549dabafaf9f81e3766719ce',
             'user_id': '085058bfb20429e669c0e92b599a96d269032f1f',
             'project_id': 'b462a3b8cd0ccbf374dd140315ec1c431a8546be',
             'management_network': 'da8863-mZ-461b-9334500',
@@ -163,6 +168,7 @@ class FakeEngine(object):
             "display_name": "sample-experiment",
             "project_id": "475312c52eb941d3ab072fba9271d9c1",
             "status": "creating",
+            "template_id": "437092518172770c549dabafaf9f81e3766719ce",
             "user_id": "511c049d52524ba9b14b0ff33867d3b8",
             'neutron_management_network': 'da8863-mZ-461b-9334500'
         }
@@ -253,6 +259,7 @@ class ExperimentTestCase(test.TestCase):
                 "name": "sample-experiment",
                 "project_id": "475312c52eb941d3ab072fba9271d9c1",
                 "status": "creating",
+                "template_id": "437092518172770c549dabafaf9f81e3766719ce",
                 "user_id": "511c049d52524ba9b14b0ff33867d3b8",
                 'management_network': 'da8863-mZ-461b-9334500'
             }

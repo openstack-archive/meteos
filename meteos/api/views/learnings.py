@@ -39,6 +39,7 @@ class ViewBuilder(common.ViewBuilder):
                 'name': learning.get('display_name'),
                 'description': learning.get('display_description'),
                 'status': learning.get('status'),
+                'model_id': learning.get('model_id'),
                 'type': learning.get('model_type'),
                 'args': learning.get('args'),
                 'stdout': learning.get('stdout'),
@@ -60,6 +61,7 @@ class ViewBuilder(common.ViewBuilder):
             'stdout': learning.get('stdout'),
             'stderr': learning.get('stderr'),
             'method': learning.get('method'),
+            'model_id': learning.get('model_id'),
             'args': learning.get('args'),
         }
 
