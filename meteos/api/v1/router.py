@@ -73,7 +73,8 @@ class APIRouter(meteos.api.openstack.APIRouter):
                         collection={'detail': 'GET'},
                         member={'action': 'POST'})
 
-        self.resources['model_evaluations'] = model_evaluations.create_resource()
+        self.resources['model_evaluations'] = model_evaluations\
+            .create_resource()
         mapper.resource("model_evaluations", "model_evaluations",
                         controller=self.resources['model_evaluations'],
                         collection={'detail': 'GET'},
