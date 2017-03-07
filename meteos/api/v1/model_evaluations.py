@@ -59,7 +59,8 @@ class ModelEvaluationController(wsgi.Controller, wsgi.AdminActionsMixin):
         """Delete a model evaluation."""
         context = req.environ['meteos.context']
 
-        LOG.info(_LI("Delete model evaluation with id: %s"), id, context=context)
+        LOG.info(_LI("Delete model evaluation with id: %s"), id,
+                 context=context)
 
         try:
             self.engine_api.delete_model_evaluation(context, id)
@@ -79,7 +80,12 @@ class ModelEvaluationController(wsgi.Controller, wsgi.AdminActionsMixin):
         return self._get_model_evaluations(req, is_detail=True)
 
     def _get_model_evaluations(self, req, is_detail):
-        """Returns a list of model evaluations, transformed through view builder."""
+
+        """
+        Returns a list of model evaluations,
+        transformed through view builder.
+        """
+
         context = req.environ['meteos.context']
 
         search_opts = {}
@@ -98,9 +104,11 @@ class ModelEvaluationController(wsgi.Controller, wsgi.AdminActionsMixin):
         limited_list = common.limited(model_evaluations, req)
 
         if is_detail:
-            model_evaluations = self._view_builder.detail_list(req, limited_list)
+            model_evaluations = self._view_builder.detail_list(
+                req, limited_list)
         else:
-            model_evaluations = self._view_builder.summary_list(req, limited_list)
+            model_evaluations = self._view_builder.summary_list(
+                req, limited_list)
         return model_evaluations
 
     def create(self, req, body):
