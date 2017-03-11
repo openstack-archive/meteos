@@ -26,7 +26,6 @@ stepping stone.
 
 import socket
 
-from oslo_config import cfg
 from oslo_log import log
 from oslo_middleware import cors
 from oslo_utils import netutils
@@ -148,9 +147,8 @@ CONF.register_opts(global_opts)
 
 def set_middleware_defaults():
     """Update default configuration options for oslo.middleware."""
-    # CORS Defaults
-    # TODO(krotscheck): Update with https://review.openstack.org/#/c/285368/
-    cfg.set_defaults(cors.CORS_OPTS,
+
+    cors.set_defaults(
                      allow_headers=['X-Auth-Token',
                                     'X-OpenStack-Request-ID',
                                     'X-Openstack-Meteos-Api-Version',
@@ -171,4 +169,4 @@ def set_middleware_defaults():
                                     'POST',
                                     'DELETE',
                                     'PATCH']
-                     )
+    )
