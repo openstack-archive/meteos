@@ -149,7 +149,7 @@ CONF.register_opts(global_opts)
 def set_middleware_defaults():
     """Update default configuration options for oslo.middleware."""
 
-    cors.set_defaults(cors.CORS_OPTS,
+    cors.set_defaults(
         allow_headers=['X-Auth-Token',
                        'X-OpenStack-Request-ID',
                        'X-Openstack-Meteos-Api-Version',
