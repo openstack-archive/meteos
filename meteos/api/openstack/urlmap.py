@@ -17,13 +17,12 @@
 from oslo_log import log
 
 from meteos.api import urlmap
-from meteos.i18n import _LW
 
 LOG = log.getLogger(__name__)
 
 
 def urlmap_factory(loader, global_conf, **local_conf):
-    LOG.warning(_LW('meteos.api.openstack.urlmap:urlmap_factory '
+    LOG.warning('meteos.api.openstack.urlmap:urlmap_factory '
                     'is deprecated. '
-                    'Please use meteos.api.urlmap:urlmap_factory instead.'))
+                    'Please use meteos.api.urlmap:urlmap_factory instead.')
     urlmap.urlmap_factory(loader, global_conf, **local_conf)

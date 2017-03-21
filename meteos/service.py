@@ -31,7 +31,7 @@ from oslo_utils import importutils
 from meteos import context
 from meteos import db
 from meteos import exception
-from meteos.i18n import _, _LE, _LI, _LW
+from meteos.i18n import _
 from meteos import rpc
 from meteos import version
 from meteos import wsgi
@@ -95,7 +95,7 @@ class Service(service.Service):
 
     def start(self):
         version_string = version.version_string()
-        LOG.info(_LI('Starting %(topic)s node (version %(version_string)s)'),
+        LOG.info('Starting %(topic)s node (version %(version_string)s)',
                  {'topic': self.topic, 'version_string': version_string})
         self.model_disconnected = False
         ctxt = context.get_admin_context()
@@ -192,7 +192,7 @@ class Service(service.Service):
         try:
             db.service_destroy(context.get_admin_context(), self.service_id)
         except exception.NotFound:
-            LOG.warning(_LW('Service killed that has no database entry.'))
+            LOG.warning('Service killed that has no database entry.')
 
     def stop(self):
         # Try to shut the connection down, but if we get any sort of
@@ -243,13 +243,13 @@ class Service(service.Service):
             # TODO(termie): make this pattern be more elegant.
             if getattr(self, 'model_disconnected', False):
                 self.model_disconnected = False
-                LOG.error(_LE('Recovered model server connection!'))
+                LOG.error('Recovered model server connection!')
 
         # TODO(vish): this should probably only catch connection errors
         except Exception:  # pylint: disable=W0702
             if not getattr(self, 'model_disconnected', False):
                 self.model_disconnected = True
-                LOG.exception(_LE('model server went away'))
+                LOG.exception('model server went away')
 
 
 class WSGIService(service.ServiceBase):
@@ -274,8 +274,8 @@ class WSGIService(service.ServiceBase):
         self.workers = getattr(CONF, '%s_workers' % name, None)
         if self.workers is not None and self.workers < 1:
             LOG.warning(
-                _LW("Value of config option %(name)s_workers must be integer "
-                    "greater than 1.  Input value ignored.") % {'name': name})
+                "Value of config option %(name)s_workers must be integer "
+                "greater than 1.  Input value ignored." % {'name': name})
             # Reset workers to default
             self.workers = None
         self.server = wsgi.Server(name,

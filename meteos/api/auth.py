@@ -17,22 +17,21 @@
 from oslo_log import log
 
 from meteos.api.middleware import auth
-from meteos.i18n import _LW
 
 LOG = log.getLogger(__name__)
 
 
 class MeteosKeystoneContext(auth.MeteosKeystoneContext):
     def __init__(self, application):
-        LOG.warning(_LW('meteos.api.auth:MeteosKeystoneContext is deprecated. '
+        LOG.warning('meteos.api.auth:MeteosKeystoneContext is deprecated. '
                         'Please use '
                         'meteos.api.middleware.auth:MeteosKeystoneContext '
-                        'instead.'))
+                        'instead.')
         super(MeteosKeystoneContext, self).__init__(application)
 
 
 def pipeline_factory(loader, global_conf, **local_conf):
-    LOG.warning(_LW('meteos.api.auth:pipeline_factory is deprecated. '
+    LOG.warning('meteos.api.auth:pipeline_factory is deprecated. '
                     'Please use meteos.api.middleware.auth:pipeline_factory '
-                    'instead.'))
+                    'instead.')
     auth.pipeline_factory(loader, global_conf, **local_conf)
