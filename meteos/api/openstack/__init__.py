@@ -21,7 +21,7 @@ WSGI middleware for OpenStack API controllers.
 from oslo_log import log
 import routes
 
-from meteos.i18n import _, _LW
+from meteos.i18n import _
 from meteos import wsgi as base_wsgi
 
 LOG = log.getLogger(__name__)
@@ -72,9 +72,9 @@ class APIRouter(base_wsgi.Router):
 
 class FaultWrapper(base_wsgi.Middleware):
     def __init__(self, application):
-        LOG.warning(_LW('meteos.api.openstack:FaultWrapper is deprecated. '
-                        'Please use '
-                        'meteos.api.middleware.fault:FaultWrapper instead.'))
+        LOG.warning('meteos.api.openstack:FaultWrapper is deprecated. '
+                    'Please use '
+                    'meteos.api.middleware.fault:FaultWrapper instead.')
         # Avoid circular imports from here.
         from meteos.api.middleware import fault
         super(FaultWrapper, self).__init__(fault.FaultWrapper(application))
