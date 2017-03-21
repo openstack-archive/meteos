@@ -25,9 +25,8 @@ from meteos.api import common
 from meteos.api.openstack import wsgi
 from meteos.api.views import model_evaluations as model_evaluation_views
 from meteos.common import constants
-from meteos import exception
-from meteos.i18n import _, _LI
 from meteos import engine
+from meteos import exception
 from meteos import utils
 
 LOG = log.getLogger(__name__)
@@ -59,7 +58,7 @@ class ModelEvaluationController(wsgi.Controller, wsgi.AdminActionsMixin):
         """Delete a model evaluation."""
         context = req.environ['meteos.context']
 
-        LOG.info(_LI("Delete model evaluation with id: %s"), id, context=context)
+        LOG.info("Delete model evaluation with id: %s", id, context=context)
 
         try:
             self.engine_api.delete_model_evaluation(context, id)

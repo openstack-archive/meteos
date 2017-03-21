@@ -21,7 +21,6 @@ Drivers for learnings.
 from oslo_config import cfg
 from oslo_log import log
 
-from meteos.i18n import _, _LE
 
 LOG = log.getLogger(__name__)
 

@@ -29,7 +29,7 @@ from meteos.common import constants
 from meteos.db import base
 from meteos.engine import rpcapi as engine_rpcapi
 from meteos import exception
-from meteos.i18n import _, _LE, _LI, _LW
+from meteos.i18n import _
 from meteos import policy
 from meteos import utils
 
@@ -171,7 +171,7 @@ class API(base.Base):
             self.engine_rpcapi.create_experiment(context, result)
             updates = {'status': constants.STATUS_CREATING}
 
-            LOG.info(_LI("Accepted creation of experiment %s."), result['id'])
+            LOG.info("Accepted creation of experiment %s.", result['id'])
             self.db.experiment_update(context, result['id'], updates)
 
         except Exception:
@@ -278,7 +278,7 @@ class API(base.Base):
 
             self.engine_rpcapi.create_dataset(context, result)
             updates = {'status': constants.STATUS_CREATING}
-            LOG.info(_LI("Accepted parsing of dataset %s."), result['id'])
+            LOG.info("Accepted parsing of dataset %s.", result['id'])
             self.db.dataset_update(context, result['id'], updates)
 
             if result['test_dataset']:
@@ -382,7 +382,7 @@ class API(base.Base):
             self.engine_rpcapi.create_model(context, result)
             updates = {'status': constants.STATUS_CREATING}
 
-            LOG.info(_LI("Accepted creation of model %s."), result['id'])
+            LOG.info("Accepted creation of model %s.", result['id'])
             self.db.model_update(context, result['id'], updates)
         except Exception:
             with excutils.save_and_reraise_exception():
@@ -419,7 +419,7 @@ class API(base.Base):
             model['swift_username'] = swift_username
             model['swift_password'] = swift_password
             self.engine_rpcapi.create_model(context, model)
-            LOG.info(_LI("Accepted recreation of model %s."), id)
+            LOG.info("Accepted recreation of model %s.", id)
 
         except Exception:
             with excutils.save_and_reraise_exception():
@@ -468,7 +468,7 @@ class API(base.Base):
             self.engine_rpcapi.load_model(context, model)
             updates = {'status': constants.STATUS_ACTIVATING}
 
-            LOG.info(_LI("Accepted load of model %s."), id)
+            LOG.info("Accepted load of model %s.", id)
             self.db.model_update(context, id, updates)
         except Exception:
             with excutils.save_and_reraise_exception():
@@ -492,7 +492,7 @@ class API(base.Base):
             self.engine_rpcapi.unload_model(context, model)
             updates = {'status': constants.STATUS_DEACTIVATING}
 
-            LOG.info(_LI("Accepted unload of model %s."), id)
+            LOG.info("Accepted unload of model %s.", id)
             self.db.model_update(context, id, updates)
         except Exception:
             with excutils.save_and_reraise_exception():
@@ -563,7 +563,7 @@ class API(base.Base):
                                             result['id'],
                                             updates)
 
-            LOG.info(_LI("Accepted creation of model evaluation %s."),
+            LOG.info("Accepted creation of model evaluation %s.",
                      result['id'])
         except Exception:
             with excutils.save_and_reraise_exception():
@@ -650,7 +650,7 @@ class API(base.Base):
             result['cluster_id'] = cluster_id
             result['dataset_format'] = dataset_format
 
-            LOG.info(_LI("Status of Model %s."), status)
+            LOG.info("Status of Model %s.", status)
 
             if status == constants.STATUS_AVAILABLE:
                 self.engine_rpcapi.create_learning(context, result)
@@ -663,7 +663,7 @@ class API(base.Base):
                 self.engine_rpcapi.create_online_learning(context,
                                                           result)
 
-            LOG.info(_LI("Accepted creation of learning %s."), result['id'])
+            LOG.info("Accepted creation of learning %s.", result['id'])
         except Exception:
             with excutils.save_and_reraise_exception():
                 self.db.learning_delete(context, result['id'])
