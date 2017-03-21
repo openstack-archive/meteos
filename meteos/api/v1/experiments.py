@@ -26,7 +26,6 @@ from meteos.api.openstack import wsgi
 from meteos.api.views import experiments as experiment_views
 from meteos.common import constants
 from meteos import exception
-from meteos.i18n import _, _LI
 from meteos import engine
 from meteos import utils
 
@@ -58,7 +57,7 @@ class ExperimentController(wsgi.Controller, wsgi.AdminActionsMixin):
         """Delete a experiment."""
         context = req.environ['meteos.context']
 
-        LOG.info(_LI("Delete experiment with id: %s"), id, context=context)
+        LOG.info("Delete experiment with id: %s", id, context=context)
 
         try:
             self.engine_api.delete_experiment(context, id)

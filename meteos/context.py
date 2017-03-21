@@ -24,7 +24,7 @@ from oslo_log import log
 from oslo_utils import timeutils
 import six
 
-from meteos.i18n import _, _LW
+from meteos.i18n import _
 from meteos import policy
 
 LOG = log.getLogger(__name__)
@@ -73,7 +73,7 @@ class RequestContext(context.RequestContext):
 
         kwargs.pop('user_identity', None)
         if kwargs:
-            LOG.warning(_LW('Arguments dropped when creating context: %s.'),
+            LOG.warning('Arguments dropped when creating context: %s.',
                         str(kwargs))
         self.user_id = self.user
         self.project_id = self.tenant
