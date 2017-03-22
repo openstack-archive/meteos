@@ -37,7 +37,7 @@ from sqlalchemy.sql import func
 
 from meteos.db.sqlalchemy import models
 from meteos import exception
-from meteos.i18n import _, _LE, _LW
+from meteos.i18n import _
 
 CONF = cfg.CONF
 

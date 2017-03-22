@@ -26,7 +26,6 @@ from saharaclient import client as sahara_client
 from meteos.common import client_auth
 from meteos.common.config import core_opts
 from meteos.db import base
-from meteos.i18n import _
 
 SAHARA_GROUP = 'sahara'
 

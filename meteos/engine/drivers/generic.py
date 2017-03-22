@@ -30,9 +30,9 @@ from oslo_utils import excutils
 from meteos import cluster
 from meteos.common import constants as const
 from meteos import context
-from meteos import exception
-from meteos.i18n import _, _LE, _LI, _LW
 from meteos.engine import driver
+from meteos import exception
+from meteos.i18n import _
 from meteos import utils
 
 EXIT_CODE = '80577372-9349-463a-bbc3-1ca54f187cc9'
@@ -128,7 +128,7 @@ class GenericLearningDriver(driver.LearningDriver):
 
         except Exception:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Error running SSH command: %s"), command)
+                LOG.error("Error running SSH command: %s", command)
 
     def _delete_hdfs_dir(self, context, cluster_id, dir_name):
 

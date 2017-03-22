@@ -21,7 +21,7 @@ from oslo_config import cfg
 from oslo_log import log
 
 from meteos import exception
-from meteos.i18n import _, _LW
+from meteos.i18n import _
 
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
