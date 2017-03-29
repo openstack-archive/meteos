@@ -104,6 +104,9 @@ class ModelMixin(object):
 
         try:
             model = self.engine_api.get_model(context, id)
+            utils.is_valid_status(model.__class__.__name__,
+                                  model.status,
+                                  constants.STATUS_AVAILABLE)
             experiment = self.engine_api.get_experiment(
                 context, model.experiment_id)
             template = self.engine_api.get_template(
@@ -111,27 +114,33 @@ class ModelMixin(object):
         except exception.NotFound:
             raise exc.HTTPNotFound()
 
+        display_name = b_model.get('display_name')
+        display_description = b_model.get('display_description')
         source_dataset_url = b_model.get('source_dataset_url')
         dataset_format = b_model.get('dataset_format', 'csv')
+        model_type = b_model.get('model_type')
+        model_params = b_model.get('model_params')
         swift_tenant = b_model.get('swift_tenant')
         swift_username = b_model.get('swift_username')
         swift_password = b_model.get('swift_password')
 
-        self.engine_api.recreate_model(id,
-                                       context,
-                                       source_dataset_url,
-                                       dataset_format,
-                                       model.model_type,
-                                       model.model_params,
-                                       template.id,
-                                       template.job_template_id,
-                                       experiment.id,
-                                       experiment.cluster_id,
-                                       swift_tenant,
-                                       swift_username,
-                                       swift_password)
+        new_model = self.engine_api.recreate_model(id,
+                                                   context,
+                                                   display_name,
+                                                   display_description,
+                                                   source_dataset_url,
+                                                   dataset_format,
+                                                   model_type,
+                                                   model_params,
+                                                   template.id,
+                                                   template.job_template_id,
+                                                   experiment.id,
+                                                   experiment.cluster_id,
+                                                   swift_tenant,
+                                                   swift_username,
+                                                   swift_password)
 
-        return {'model': {'id': id}}
+        return self._view_builder.detail(req, new_model)
 
 
 class ModelController(wsgi.Controller, ModelMixin, wsgi.AdminActionsMixin):

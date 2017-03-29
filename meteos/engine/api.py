@@ -393,14 +393,17 @@ class API(base.Base):
 
         return model
 
-    def recreate_model(self, id, context, source_dataset_url, dataset_format,
+    def recreate_model(self, id, context, name, description,
+                       source_dataset_url, dataset_format,
                        model_type, model_params, template_id,
                        job_template_id, experiment_id, cluster_id,
                        swift_tenant, swift_username, swift_password):
         """Recreate a Model"""
         policy.check_policy(context, 'model', 'recreate')
 
-        model = {'source_dataset_url': source_dataset_url,
+        model = {'display_name': name,
+                 'display_description': description,
+                 'source_dataset_url': source_dataset_url,
                  'dataset_format': dataset_format,
                  'model_type': model_type,
                  'model_params': model_params,
