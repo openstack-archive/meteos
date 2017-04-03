@@ -149,23 +149,32 @@ class ModelController(object):
         else:
             return index
 
-    def evaluateBinaryClassification(self, predictionAndLabels):
+    def evaluateClassification(self, predictionAndLabels):
 
-        metrics = MulticlassMetrics(predictionAndLabels).confusionMatrix()
+        metrics = MulticlassMetrics(predictionAndLabels)
+        cm = metrics.confusionMatrix()
 
-        return "{}: {}".format("True Positive", metrics[0, 0]) + os.linesep\
-               + "{}: {}".format("False Positive", metrics[0, 1]) + os.linesep\
-               + "{}: {}".format("False Negative", metrics[1, 0]) + os.linesep\
-               + "{}: {}".format("True Negative", metrics[1, 1])
+        result = {}
+
+        result['Matrix'] = cm.toArray().tolist()
+        result['Precision'] = metrics.precision()
+        result['Recall'] = metrics.recall()
+        result['F1 Score'] =  metrics.fMeasure()
+
+        return result
 
     def evaluateRegression(self, scoreAndLabels):
 
         metrics = RegressionMetrics(scoreAndLabels)
 
-        return "{}: {}".format("MAE", metrics.meanAbsoluteError) + os.linesep\
-               + "{}: {}".format("MSE", metrics.meanSquaredError) + os.linesep\
-               + "{}: {}".format("RMSE", metrics.rootMeanSquaredError) + os.linesep\
-               + "{}: {}".format("R-squared", metrics.r2)
+        result = {}
+
+        result['MAE'] = metrics.meanAbsoluteError
+        result['MSE'] = metrics.meanSquaredError
+        result['RMSE'] = metrics.rootMeanSquaredError
+        result['R-squared'] = metrics.r2
+
+        return result
 
 
 class KMeansModelController(ModelController):
@@ -356,7 +365,7 @@ class LogisticRegressionModelController(ModelController):
         predictionAndLabels = data.map(self.parsePoint)\
                                   .map(lambda lp: (float(model.predict(lp.features)), lp.label))
 
-        return self.evaluateBinaryClassification(predictionAndLabels)
+        return self.evaluateClassification(predictionAndLabels)
 
     def evaluate_model_libsvm(self, context, model, data):
         return self.evaluate_model(context, model, data)
@@ -396,7 +405,7 @@ class NaiveBayesModelController(ModelController):
         predictionAndLabels = data.map(self.parsePoint)\
                                   .map(lambda lp: (float(model.predict(lp.features)), lp.label))
 
-        return self.evaluateBinaryClassification(predictionAndLabels)
+        return self.evaluateClassification(predictionAndLabels)
 
     def evaluate_model_libsvm(self, context, model, data):
         return self.evaluate_model(context, model, data)
@@ -406,7 +415,7 @@ class NaiveBayesModelController(ModelController):
         points = self.parseTextRDDToIndex(data)
         predictionAndLabels = points.map(lambda lp: (float(model.predict(lp.features)), lp.label))
 
-        return self.evaluateBinaryClassification(predictionAndLabels)
+        return self.evaluateClassification(predictionAndLabels)
 
     def load_model(self, context, path):
         return NaiveBayesModel.load(context, path)
@@ -520,18 +529,18 @@ class TreeModelController(ModelController):
 
     def evaluate_model(self, context, model, data):
 
-        predictions = model.predict(data.map(lambda x: x.features))
-        predictionAndLabels = data.map(lambda lp: lp.label).zip(predictions)
-        metrics = MulticlassMetrics(predictionAndLabels)
+        points = data.map(self.parsePoint)
+        predictions = model.predict(points.map(lambda lp: lp.features))
+        predictionAndLabels = points.map(lambda lp: lp.label).zip(predictions)
 
-        result = "{}: {}".format("Precision", metrics.precision()) + os.linesep\
-               + "{}: {}".format("Recall", metrics.recall()) + os.linesep\
-               + "{}: {}".format("F1 Score", metrics.fMeasure())
-
-        return result
+        return self.evaluateClassification(predictionAndLabels)
 
     def evaluate_model_libsvm(self, context, model, data):
-        return self.evaluate_model(context, model, data)
+
+        predictions = model.predict(data.map(lambda x: x.features))
+        predictionAndLabels = data.map(lambda lp: lp.label).zip(predictions)
+
+        return self.evaluateClassification(predictionAndLabels)
 
     def load_model(self, context, path):
         return getattr(self.model_class, 'load')(context, path)
