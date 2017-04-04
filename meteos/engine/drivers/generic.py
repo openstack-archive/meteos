@@ -169,10 +169,9 @@ class GenericLearningDriver(driver.LearningDriver):
         job_args['dataset'] = dataset_args
 
         # Set parameters of Swift
-        swift_args = {}
-        swift_args['tenant'] = request_specs.get('swift_tenant')
-        swift_args['username'] = request_specs.get('swift_username')
-        swift_args['password'] = request_specs.get('swift_password')
+        swift_args = {'tenant': request_specs.get('swift_tenant'),
+                      'username': request_specs.get('swift_username'),
+                      'password': request_specs.get('swift_password')}
         job_args['swift'] = swift_args
 
         # Set parameters of Model
