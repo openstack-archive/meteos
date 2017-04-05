@@ -244,7 +244,6 @@ class API(base.Base):
                    'experiment_id': experiment_id,
                    'cluster_id': cluster_id,
                    'params': params,
-                   'cluster_id': cluster_id
                    }
 
         test_dataset = {}
