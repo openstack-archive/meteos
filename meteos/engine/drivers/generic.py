@@ -464,12 +464,12 @@ class GenericLearningDriver(driver.LearningDriver):
         ip = self._get_master_ip(context, request_specs['cluster_id'])
         port = request_specs['port']
 
-        return self._run_ssh(ip, ['echo',
-                                  base64.b64encode(EXIT_CODE),
-                                  '|',
-                                  'netcat',
-                                  'localhost',
-                                  port])
+        self._run_ssh(ip, ['echo',
+                            base64.b64encode(EXIT_CODE),
+                            '|',
+                            'netcat',
+                            'localhost',
+                            port])
 
         self._wait_for_model_to_load(ip, port, unload=True)
 
