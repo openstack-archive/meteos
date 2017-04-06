@@ -37,9 +37,9 @@ log.register_options(CONF)
 
 
 core_opts = [
-    cfg.StrOpt('api_paste_config',
-               default="api-paste.ini",
-               help='File name for the paste.deploy config for meteos-api.'),
+    cfg.HostAddressOpt('api_paste_config',
+                       default="api-paste.ini",
+                       help='File name for the paste.deploy config for meteos-api.'),
     cfg.StrOpt('state_path',
                default='/var/lib/meteos',
                help="Top-level directory for maintaining meteos's state."),
