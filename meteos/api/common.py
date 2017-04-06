@@ -31,7 +31,7 @@ api_common_opts = [
         default=1000,
         help='The maximum number of items returned in a single response from '
              'a collection resource.'),
-    cfg.StrOpt(
+    cfg.HostAddressOpt(
         'osapi_learning_base_URL',
         help='Base URL to be presented to users in links to the Learning API'),
 ]
