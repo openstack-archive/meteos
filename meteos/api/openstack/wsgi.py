@@ -1180,13 +1180,11 @@ class AdminActionsMixin(object):
     }
 
     valid_statuses = {
-        'status': set([
-            constants.STATUS_CREATING,
-            constants.STATUS_AVAILABLE,
-            constants.STATUS_DELETING,
-            constants.STATUS_ERROR,
-            constants.STATUS_ERROR_DELETING,
-        ]),
+        'status': {constants.STATUS_CREATING,
+                   constants.STATUS_AVAILABLE,
+                   constants.STATUS_DELETING,
+                   constants.STATUS_ERROR,
+                   constants.STATUS_ERROR_DELETING},
     }
 
     def _update(self, *args, **kwargs):
