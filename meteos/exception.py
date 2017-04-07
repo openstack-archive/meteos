@@ -172,6 +172,7 @@ class HostBinaryNotFound(NotFound):
 
 class MalformedRequestBody(MeteosException):
     message = _("Malformed message body: %(reason)s.")
+    code = 400
 
 
 class AdminRequired(NotAuthorized):
