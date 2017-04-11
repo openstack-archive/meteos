@@ -40,7 +40,6 @@ fake_model = {"model": {
     "user_id": "511c049d52524ba9b14b0ff33867d3b8"}}
 
 result = {"model": {
-    "id": "8caaabed10aaae1d1366f50a28a8b501c77c2c5c",
     "created_at": "2016-11-30T07:03:33.000000",
     "description": 'null',
     "id": "c8707239-ae83-40c8-9d1b-273981ba209d",
