@@ -168,7 +168,6 @@ class FakeEngine(object):
             "display_name": "sample-data",
             "project_id": "475312c52eb941d3ab072fba9271d9c1",
             "status": "creating",
-            "name": "sample-data",
             "stderr": "null",
             "user_id": "511c049d52524ba9b14b0ff33867d3b8"
         }
