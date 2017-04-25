@@ -24,7 +24,7 @@ project.
 Project Resources
 -----------------
 
-* `Meteos Official Documentation <http://docs.openstack.org/developer/meteos/>`_
+* `Meteos Official Documentation <https://wiki.openstack.org/wiki/Meteos/>`_
 
 * Project status, bugs, and blueprints are tracked on
   `Launchpad <https://launchpad.net/meteos/>`_
