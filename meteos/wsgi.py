@@ -358,7 +358,7 @@ class Application(object):
           # ... or set req.response and return None.
           req.response = res
 
-        See the end of http://pythonpaste.org/webob/modules/dec.html
+        See the end of https://pythonpaste.org/webob/modules/dec.html
         for more info.
 
         """

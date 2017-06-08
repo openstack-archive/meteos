@@ -27,7 +27,7 @@ Admin Docs
 API Extensions
 ==============
 
-Go to http://api.openstack.org for information about Meteos API extensions.
+Go to https://api.openstack.org for information about Meteos API extensions.
 
 Information
 ===========
