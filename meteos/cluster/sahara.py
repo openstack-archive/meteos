@@ -31,7 +31,7 @@ SAHARA_GROUP = 'sahara'
 
 sahara_opts = [
     cfg.StrOpt('auth_url',
-               default='http://localhost:5000/v2.0',
+               default='http://localhost/identity/v3',
                help='Identity service URL.',
                deprecated_group='DEFAULT')
 ]
@@ -53,11 +53,17 @@ def saharaclient(context):
         'token': context.auth_token,
         'tenant_id': context.tenant,
     }
+    opts_for_v3 = {
+        'auth_url': CONF.sahara.auth_url,
+        'token': context.auth_token,
+        'project_id': context.tenant,
+    }
     AUTH_OBJ = client_auth.AuthClientLoader(
         client_class=sahara_client.Client,
         exception_module=sahara_exception,
         cfg_group=SAHARA_GROUP,
         deprecated_opts_for_v2=deprecated_opts_for_v2,
+        opts_for_v3=opts_for_v3,
         url=CONF.sahara.auth_url,
         token=context.auth_token)
     return AUTH_OBJ.get_client(context)

@@ -17,6 +17,7 @@ import copy
 
 from keystoneauth1 import loading as ks_loading
 from keystoneauth1.loading._plugins.identity import v2
+from keystoneauth1.loading._plugins.identity import v3
 from oslo_config import cfg
 from oslo_log import log
 
@@ -39,7 +40,8 @@ needed to load all needed parameters dynamically.
 class AuthClientLoader(object):
 
     def __init__(self, client_class, exception_module, cfg_group,
-                 deprecated_opts_for_v2=None, url=None, token=None):
+                 deprecated_opts_for_v2=None, opts_for_v3=None,
+                 url=None, token=None):
         self.client_class = client_class
         self.exception_module = exception_module
         self.group = cfg_group
@@ -48,6 +50,7 @@ class AuthClientLoader(object):
         self.session = None
         self.auth_plugin = None
         self.deprecated_opts_for_v2 = deprecated_opts_for_v2
+        self.opts_for_v3 = opts_for_v3
         self.url = url
         self.token = token
 
@@ -80,8 +83,12 @@ class AuthClientLoader(object):
         self.auth_plugin = ks_loading.load_auth_from_conf_options(
             CONF, self.group)
 
-        self.auth_plugin = v2.Token().load_from_options(
-            **self.deprecated_opts_for_v2)
+        if self.url.find('v2') > -1:
+            self.auth_plugin = v2.Token().load_from_options(
+                **self.deprecated_opts_for_v2)
+        else:
+            self.auth_plugin = v3.Token().load_from_options(
+                **self.opts_for_v3)
 
         if self.auth_plugin:
             return self.auth_plugin
