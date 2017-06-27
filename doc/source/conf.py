@@ -22,9 +22,10 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import os
+import shlex
 import subprocess
 import sys
-import os
 import warnings
 
 import openstackdocstheme
@@ -91,7 +92,15 @@ version = version_info.version_string()
 # These variables are passed to the logabug code via html_context.
 giturl = u'https://git.openstack.org/cgit/openstack/meteos/tree/doc/source'
 git_cmd = "/usr/bin/git log | head -n1 | cut -f2 -d' '"
-gitsha = os.popen(git_cmd).read().strip('\n')
+args = shlex.split(git_cmd)
+git_out = subprocess.Popen(args, shell=True,
+                           universal_newlines=True,
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
+git_stdout, git_stderr = git_out.communicate(input=None)
+gitsha = git_stdout
+if git_out.returncode != 0:
+    print(git_stderr)
 bug_tag = u'docs'
 # source tree
 pwd = os.getcwd()
