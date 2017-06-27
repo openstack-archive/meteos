@@ -91,7 +91,9 @@ version = version_info.version_string()
 # These variables are passed to the logabug code via html_context.
 giturl = u'https://git.openstack.org/cgit/openstack/meteos/tree/doc/source'
 git_cmd = "/usr/bin/git log | head -n1 | cut -f2 -d' '"
-gitsha = os.popen(git_cmd).read().strip('\n')
+gitsha = subprocess.Popen(
+    args=git_cmd,
+    shell=True).communicate()[0].strip(`\n`)
 bug_tag = u'docs'
 # source tree
 pwd = os.getcwd()
