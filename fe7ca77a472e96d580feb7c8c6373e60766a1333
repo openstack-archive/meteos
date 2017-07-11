@@ -1,0 +1,9 @@
+Code-Review+1: Ngo Quoc Cuong <cuongnq@vn.fujitsu.com>
+Code-Review+2: Hiroyuki Eguchi <h-eguchi@az.jp.nec.com>
+Workflow+1: Hiroyuki Eguchi <h-eguchi@az.jp.nec.com>
+Verified+2: Jenkins
+Submitted-by: Jenkins
+Submitted-at: Tue, 11 Jul 2017 10:44:54 +0000
+Reviewed-on: https://review.openstack.org/477871
+Project: openstack/meteos
+Branch: refs/heads/master
