@@ -422,8 +422,6 @@ class Middleware(Application):
     @webob.dec.wsgify(RequestClass=Request)
     def __call__(self, req):
         response = self.process_request(req)
-        if response:
-            return response
         response = req.get_response(self.application)
         return self.process_response(response)
 
