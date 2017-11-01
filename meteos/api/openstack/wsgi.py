@@ -19,9 +19,9 @@ import math
 import time
 
 from oslo_log import log
-from oslo_serialization import jsonutils
 from oslo_utils import strutils
 import six
+import ujson
 import webob
 import webob.exc
 
@@ -276,7 +276,7 @@ class JSONDeserializer(TextDeserializer):
 
     def _from_json(self, datastring):
         try:
-            return jsonutils.loads(datastring)
+            return ujson.loads(datastring)
         except ValueError:
             msg = _("cannot understand JSON")
             raise exception.MalformedRequestBody(reason=msg)
@@ -299,7 +299,7 @@ class JSONDictSerializer(DictSerializer):
     """Default JSON request body serialization."""
 
     def default(self, data):
-        return six.b(jsonutils.dumps(data))
+        return six.b(ujson.dumps(data))
 
 
 def serializers(**serializers):
@@ -486,7 +486,7 @@ def action_peek_json(body):
     """Determine action to invoke."""
 
     try:
-        decoded = jsonutils.loads(body)
+        decoded = ujson.loads(body)
     except ValueError:
         msg = _("cannot understand JSON")
         raise exception.MalformedRequestBody(reason=msg)

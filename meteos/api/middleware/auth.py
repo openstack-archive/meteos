@@ -20,7 +20,7 @@ import os
 
 from oslo_config import cfg
 from oslo_log import log
-from oslo_serialization import jsonutils
+import ujson
 import webob.dec
 import webob.exc
 
@@ -100,7 +100,7 @@ class MeteosKeystoneContext(base_wsgi.Middleware):
         if req.headers.get('X_SERVICE_CATALOG') is not None:
             try:
                 catalog_header = req.headers.get('X_SERVICE_CATALOG')
-                service_catalog = jsonutils.loads(catalog_header)
+                service_catalog = ujson.loads(catalog_header)
             except ValueError:
                 raise webob.exc.HTTPInternalServerError(
                     _('Invalid service catalog json.'))

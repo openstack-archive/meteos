@@ -18,7 +18,7 @@ Client side of the learning RPC API.
 
 from oslo_config import cfg
 import oslo_messaging as messaging
-from oslo_serialization import jsonutils
+import ujson
 
 from meteos import rpc
 
@@ -67,7 +67,7 @@ class LearningAPI(object):
         return client.cast(ctxt, method, **kwargs)
 
     def create_template(self, context, request_spec):
-        request_spec_p = jsonutils.to_primitive(request_spec)
+        request_spec_p = ujson.to_primitive(request_spec)
         return self.call(context, self.make_msg('create_template',
                                                 request_spec=request_spec_p))
 
@@ -76,7 +76,7 @@ class LearningAPI(object):
                                                 id=id))
 
     def create_experiment(self, context, request_spec):
-        request_spec_p = jsonutils.to_primitive(request_spec)
+        request_spec_p = ujson.to_primitive(request_spec)
         return self.cast(context, self.make_msg('create_experiment',
                                                 request_spec=request_spec_p))
 
@@ -85,7 +85,7 @@ class LearningAPI(object):
                                                 id=id))
 
     def create_dataset(self, context, request_spec):
-        request_spec_p = jsonutils.to_primitive(request_spec)
+        request_spec_p = ujson.to_primitive(request_spec)
         return self.cast(context, self.make_msg('create_dataset',
                                                 request_spec=request_spec_p))
 
@@ -96,7 +96,7 @@ class LearningAPI(object):
                                                 id=id))
 
     def create_model(self, context, request_spec):
-        request_spec_p = jsonutils.to_primitive(request_spec)
+        request_spec_p = ujson.to_primitive(request_spec)
         return self.cast(context, self.make_msg('create_model',
                                                 request_spec=request_spec_p))
 
@@ -108,17 +108,17 @@ class LearningAPI(object):
                                                 recreate=recreate))
 
     def load_model(self, context, request_spec):
-        request_spec_p = jsonutils.to_primitive(request_spec)
+        request_spec_p = ujson.to_primitive(request_spec)
         return self.cast(context, self.make_msg('load_model',
                                                 request_spec=request_spec_p))
 
     def unload_model(self, context, request_spec):
-        request_spec_p = jsonutils.to_primitive(request_spec)
+        request_spec_p = ujson.to_primitive(request_spec)
         return self.cast(context, self.make_msg('unload_model',
                                                 request_spec=request_spec_p))
 
     def create_model_evaluation(self, context, request_spec):
-        request_spec_p = jsonutils.to_primitive(request_spec)
+        request_spec_p = ujson.to_primitive(request_spec)
         return self.cast(context, self.make_msg('create_model_evaluation',
                                                 request_spec=request_spec_p))
 
@@ -129,12 +129,12 @@ class LearningAPI(object):
                                                 id=id))
 
     def create_learning(self, context, request_spec):
-        request_spec_p = jsonutils.to_primitive(request_spec)
+        request_spec_p = ujson.to_primitive(request_spec)
         return self.cast(context, self.make_msg('create_learning',
                                                 request_spec=request_spec_p))
 
     def create_online_learning(self, context, request_spec):
-        request_spec_p = jsonutils.to_primitive(request_spec)
+        request_spec_p = ujson.to_primitive(request_spec)
         return self.call(context, self.make_msg('create_online_learning',
                                                 request_spec=request_spec_p))
 

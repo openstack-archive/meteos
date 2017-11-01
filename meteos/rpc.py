@@ -27,7 +27,7 @@ __all__ = [
 
 from oslo_config import cfg
 import oslo_messaging as messaging
-from oslo_serialization import jsonutils
+import ujson
 
 import meteos.context
 import meteos.exception
@@ -83,7 +83,7 @@ class JsonPayloadSerializer(messaging.NoOpSerializer):
 
     @staticmethod
     def serialize_entity(context, entity):
-        return jsonutils.to_primitive(entity, convert_instances=True)
+        return ujson.to_primitive(entity, convert_instances=True)
 
 
 class RequestContextSerializer(messaging.Serializer):

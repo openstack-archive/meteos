@@ -16,7 +16,7 @@ import collections
 import functools
 
 import oslo_messaging as messaging
-from oslo_serialization import jsonutils
+import ujson
 
 from meteos import rpc
 
@@ -53,7 +53,7 @@ class FakeNotifier(object):
         # NOTE(sileht): simulate the kombu serializer
         # this permit to raising an exception if something have not
         # been serialized correctly
-        jsonutils.to_primitive(payload)
+        ujson.to_primitive(payload)
         msg = dict(publisher_id=self.publisher_id,
                    priority=priority,
                    event_type=event_type,
