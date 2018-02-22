@@ -31,7 +31,4 @@ METEOS_BIN_DIR=$(get_python_exec_prefix)
 METEOS_ENABLE_DISTRIBUTED_PERIODICS=${METEOS_ENABLE_DISTRIBUTED_PERIODICS:-\
 True}
 
-# Tell Tempest this project is present
-TEMPEST_SERVICES+=,meteos
-
 enable_service meteos-api meteos-eng
