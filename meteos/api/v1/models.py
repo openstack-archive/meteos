@@ -177,7 +177,7 @@ class ModelController(wsgi.Controller, ModelMixin, wsgi.AdminActionsMixin):
         except exception.InvalidLearning as e:
             raise exc.HTTPForbidden(explanation=six.text_type(e))
 
-        return webob.Response(status_int=202)
+        return webob.Response(status_int=http_client.ACCEPTED)
 
     def index(self, req):
         """Returns a summary list of models."""
