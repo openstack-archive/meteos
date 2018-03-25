@@ -22,6 +22,7 @@ from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import strutils
 import six
+from six.moves import http_client
 import webob
 import webob.exc
 
@@ -1225,7 +1226,7 @@ class AdminActionsMixin(object):
             self._update(context, id, update)
         except exception.NotFound as e:
             raise webob.exc.HTTPNotFound(six.text_type(e))
-        return webob.Response(status_int=202)
+        return webob.Response(status_int=http_client.ACCEPTED)
 
     @Controller.authorize('force_delete')
     def _force_delete(self, req, id, body):
@@ -1236,7 +1237,7 @@ class AdminActionsMixin(object):
         except exception.NotFound as e:
             raise webob.exc.HTTPNotFound(six.text_type(e))
         self._delete(context, resource, force=True)
-        return webob.Response(status_int=202)
+        return webob.Response(status_int=http_client.ACCEPTED)
 
 
 class Fault(webob.exc.HTTPException):
