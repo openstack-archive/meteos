@@ -10,11 +10,11 @@ Meteos
 ======
 
 .. image:: https://img.shields.io/pypi/v/meteos.svg
-    :target: https://pypi.python.org/pypi/meteos/
+    :target: https://pypi.org/project/meteos/
     :alt: Latest Version
 
 .. image:: https://img.shields.io/pypi/dm/meteos.svg
-    :target: https://pypi.python.org/pypi/meteos/
+    :target: https://pypi.org/project/meteos/
     :alt: Downloads
 
 You have come across an OpenStack Machine Learning service.  It has
