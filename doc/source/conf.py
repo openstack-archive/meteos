@@ -92,7 +92,7 @@ version = version_info.version_string()
 giturl = u'https://git.openstack.org/cgit/openstack/meteos/tree/doc/source'
 git_cmd = "/usr/bin/git log | head -n1 | cut -f2 -d' '"
 gitsha = os.popen(git_cmd).read().strip('\n')
-bug_tag = u'docs'
+bug_tag = u'documentation'
 # source tree
 pwd = os.getcwd()
 html_context = {
