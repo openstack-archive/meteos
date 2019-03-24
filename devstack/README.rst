@@ -9,14 +9,14 @@
 .. sourcecode:: bash
 
      [[local|localrc]]
-     enable_plugin meteos git://git.openstack.org/openstack/meteos
+     enable_plugin meteos https://git.openstack.org/openstack/meteos
 
 Optionally, a git refspec may be provided as follows:
 
 .. sourcecode:: bash
 
      [[local|localrc]]
-     enable_plugin meteos git://git.openstack.org/openstack/meteos <refspec>
+     enable_plugin meteos https://git.openstack.org/openstack/meteos <refspec>
 
 3. run ``stack.sh``
 
